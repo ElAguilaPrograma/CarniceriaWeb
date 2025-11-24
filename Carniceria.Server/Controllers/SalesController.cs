@@ -1,4 +1,5 @@
-﻿using DataBase_Carniceria;
+﻿using Carniceria.Server.Services;
+using DataBase_Carniceria;
 using DataBase_Carniceria.DTOs;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -15,10 +16,12 @@ namespace Carniceria.Server.Controllers
     public class SalesController : ControllerBase
     {
         private readonly CarniceriaContext _context;
+        private readonly IProductsService _productsService;
 
-        public SalesController(CarniceriaContext context)
+        public SalesController(CarniceriaContext context, IProductsService productsService)
         {
             _context = context;
+            _productsService = productsService;
         }
 
         [HttpGet("showsales-by-branch/{branchId}")]
@@ -102,7 +105,7 @@ namespace Carniceria.Server.Controllers
                 if (pay < 0) return BadRequest("No se puede pagar con valores negativos");
                 else if (pay == total) return Ok("No hay cambio, pago exacto");
 
-                var change = total - pay;
+                var change = pay - total;
                 return Ok(change);
             }
             catch (Exception ex)
@@ -111,6 +114,7 @@ namespace Carniceria.Server.Controllers
             }
         }
 
+        // Falta poder recibir ver los productos que se vendieron XDD
         [HttpPost("createnewsale-by-branch/{branchid}/{customerId}/{total}")]
         public async Task<IActionResult> CreateSaleByBranch(int branchId, int customerId, decimal total)
         {
@@ -191,6 +195,26 @@ namespace Carniceria.Server.Controllers
             catch (Exception ex)
             {
                 return StatusCode(500, "No se pudo eliminar la venta" + ex.Message);
+            }
+        }
+
+        [HttpPost("calculatemeatprice/{code}/{weight}")]
+        public async Task<IActionResult> CalculateMeatPrice(string code, decimal weight)
+        {
+            try
+            {
+                if (string.IsNullOrWhiteSpace(code)) return BadRequest("El codigo no es valido");
+                var codeExistInDataBase = await _context.Products.FirstOrDefaultAsync(p => p.Code == code);
+                if (codeExistInDataBase == null) return NotFound("No se encontro el codigo");
+
+                var meatPrice = _productsService.CalculetePriceMeat(codeExistInDataBase, weight);
+
+                return Ok(meatPrice);
+                
+            }
+            catch(Exception ex)
+            {
+                return StatusCode(500, "No se pudo calcular el precio de la carne" + ex.Message);
             }
         }
 

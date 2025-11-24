@@ -1,0 +1,14 @@
+<div class="flex flex-col h-screen">
+    <app-header (toggleSidebar)="toggleSidebar()"></app-header>
+
+    <div class="flex flex-1 overflow-hidden">
+        @if (token !== ''){
+            <app-sidebar [collapsed]="isSidebarCollapsed"></app-sidebar>
+        }
+
+        <div class="flex-1 overflow-y-auto transition-all duration-300 ml-0"
+             [ngClass]="{ 'ml-64': !isSidebarCollapsed, 'sm:ml-64': !isSidebarCollapsed }">
+            <router-outlet></router-outlet>
+        </div>
+    </div>
+</div>

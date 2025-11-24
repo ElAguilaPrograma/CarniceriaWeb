@@ -14,6 +14,7 @@ public partial class Sale
     public DateTime Date { get; set; }
 
     public decimal Total { get; set; }
+    public virtual Product? Product { get; set; }
 
     public virtual Branch Branch { get; set; } = null!;
 

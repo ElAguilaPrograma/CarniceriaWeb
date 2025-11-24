@@ -208,6 +208,9 @@ namespace DataBase_Carniceria.Migrations
                         .HasColumnType("datetime")
                         .HasDefaultValueSql("(getdate())");
 
+                    b.Property<int?>("ProductId")
+                        .HasColumnType("int");
+
                     b.Property<decimal>("Total")
                         .HasColumnType("decimal(10, 2)");
 
@@ -216,6 +219,8 @@ namespace DataBase_Carniceria.Migrations
                     b.HasIndex("BranchId");
 
                     b.HasIndex("CustomerId");
+
+                    b.HasIndex("ProductId");
 
                     b.ToTable("Sales");
                 });
@@ -364,9 +369,15 @@ namespace DataBase_Carniceria.Migrations
                         .IsRequired()
                         .HasConstraintName("FK_Sales_Customers");
 
+                    b.HasOne("DataBase_Carniceria.Product", "Product")
+                        .WithMany()
+                        .HasForeignKey("ProductId");
+
                     b.Navigation("Branch");
 
                     b.Navigation("Customer");
+
+                    b.Navigation("Product");
                 });
 
             modelBuilder.Entity("DataBase_Carniceria.SalesDetail", b =>

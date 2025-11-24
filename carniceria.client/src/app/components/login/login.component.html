@@ -1,0 +1,51 @@
+<div class="login-container">
+    <div class="login-card">
+        <div class="login-header">
+            <h2>Bienvenido</h2>
+            <p>Inicie sesión en su cuenta</p>
+        </div>
+
+        <form (ngSubmit)="onLogin(loginForm)" #loginForm="ngForm" class="login-form">
+            <div class="form-group">
+                <label>Correo electronico</label>
+                <i class="bi bi-envelope input-icon"></i>
+                <input
+                    type="email"
+                    class="form-control"
+                    placeholder=" "
+                    required
+                    [(ngModel)]="loginData.email"
+                    name="email" />
+            </div>
+
+            <div class="form-group">
+                <label>Contraseña</label>
+                <i class="bi bi-lock input-icon"></i>
+                <input
+                    type="password"
+                    class="form-control"
+                    placeholder=" "
+                    required
+                    [(ngModel)]="loginData.password"
+                    name="password"/>
+            </div>
+
+            <button class="login-btn" type="submit" [disabled]="!loginForm.valid">
+                <span>Iniciar Sesión</span>
+                <i class="bi bi-arrow-right"></i>
+            </button>
+        </form>
+
+        <div class="login-footer">
+            <p>¿No tienes cuenta?</p>
+            <button class="btn-register" routerLink="/register">
+                <span>Crear Cuenta</span>
+                <i class="bi bi-person-plus"></i>
+            </button>
+        </div>
+        <a routerLink="/main">Volver al inicio</a>
+    </div>
+    @if (loginError) {
+        <div class="alert alert-danger">Correo o contraseña incorrectos</div>
+    }
+</div>

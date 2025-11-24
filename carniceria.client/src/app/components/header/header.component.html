@@ -1,0 +1,57 @@
+<header class="w-full text-black flex items-center justify-between px-6 py-3 shadow-md z-50 relative">
+    <div class="flex items-center space-x-4">
+        @if (loginStatus){
+            <button 
+              class="flex items-center justify-center text-black p-2 hover:rounded-full
+                transition-all duration-300 hover:bg-gray-300"
+                (click)="toggleSidebar.emit()">
+                <i class="bi bi-list text-2xl" style="color: black"></i>
+            </button>
+        }
+
+        <h1 class="text-xl font-semibold tracking-wide pl-4">
+            CarniceriaWebApp
+        </h1>
+    </div>
+
+    <div class="flex items-center space-x-3">
+        @if (loginStatus){
+            <button
+              class="flex items-center gap-2 hover:bg-gray-300 
+                     text-black px-4 py-2"
+              routerLink="/branches"
+            >
+              <span>Ir al menú</span>
+              <i class="bi bi-menu-up" style="color: black"></i>
+            </button>
+
+            <button
+              class="flex items-center gap-2 hover:bg-gray-300
+                     text-black px-4 py-2 transition"
+              (click)="logOut()"
+            >
+              <span>Salir de la cuenta</span>
+              <i class="bi bi-box-arrow-in-left" style="color: black"></i>
+            </button>
+        }
+        @else{
+            <button 
+              class="flex items-center gap-2 bg-white/20 hover:bg-white/30 
+                     text-black px-4 py-2 transition"
+              routerLink="/login"
+            >
+                <i class="bi bi-door-open" style="color: black"></i>
+                <span>Iniciar Sesión</span>
+            </button>
+
+            <button 
+              class="flex items-center gap-2 bg-white/20 hover:bg-white/30 
+                     text-black px-4 py-2 rounded-lg transition"
+              routerLink="/register"
+            >
+                <i class="bi bi-box-arrow-in-right" style="color: black"></i>
+                <span>Registrarse</span>
+            </button>
+        }
+    </div>
+</header>

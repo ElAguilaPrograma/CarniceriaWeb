@@ -50,7 +50,7 @@ namespace Carniceria.Server.Controllers
                 //Crear un nuevo producto
                 var newProduct = new Product
                 {
-                    Code = _productsService.GenerateRandomCode().ToString(),
+                    Code = request.Code,
                     Name = request.Name,
                     Price = request.Price,
                     Stock = request.Stock,

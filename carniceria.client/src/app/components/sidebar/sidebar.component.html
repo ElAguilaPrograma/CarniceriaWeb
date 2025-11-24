@@ -1,0 +1,44 @@
+@if (loginStatus == false) {
+    <div class="sidebar">
+        <aside class="
+            fixed top-22 left-0 z-40 w-64 transition-transform duration-300 ease-in-out " 
+            [class.-translate-x-full]="collapsed" [class.translate-x-0]="!collapsed" aria-label="sidebar">
+            <div class="h-screen px-3 py-4 overflow-y-auto bg-neutral-primary-soft border-e border-default">
+                <ul class="space-y-2 font-medium">
+                    <li class="py-2.5">
+                        <a routerLink="/home" routerLinkActive="active" class="flex items-center px-2 py-1.5 text-body rounded-base hover:bg-neutral-tertiary hover:text-fg-brand group">
+                            <i class="bi bi-house-door-fill text-2xl"></i>
+                            <span class="ms-3">Inicio</span>
+                        </a>
+                    </li>
+                    <li class="py-2.5">
+                        <a routerLink="/branches" routerLinkActive="active" class="flex items-center px-2 py-1.5 text-body rounded-base hover:bg-neutral-tertiary hover:text-fg-brand group">
+                            <i class="bi bi-houses text-2xl"></i>
+                            <span class="ms-3">Sucursales</span>
+                        </a>
+                    </li>
+                    <li class="py-2.5">
+                        <a routerLink="/productos" routerLinkActive="active" class="flex items-center px-2 py-1.5 text-body rounded-base hover:bg-neutral-tertiary hover:text-fg-brand group">
+                            <i class="bi bi-basket text-2xl"></i>
+                            <span class="ms-3">Productos</span>
+                        </a>
+                    </li>
+                    <li class="py-2.5">
+                        <a class="flex items-center px-2 py-1.5 text-body rounded-base hover:bg-neutral-tertiary hover:text-fg-brand group">
+                            <i class="bi bi-list-check text-2xl"></i>
+                            <span class="ms-3">Categorias</span>
+                        </a>
+                    </li>
+                    <li class="py-2.5">
+                        <a class="flex items-center px-2 py-1.5 text-body rounded-base hover:bg-neutral-tertiary hover:text-fg-brand group">
+                            <i class="bi bi-gear-fill text-2xl"></i>
+                            <span class="ms-3">Ajustes</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </aside>
+    </div>
+}
+
+

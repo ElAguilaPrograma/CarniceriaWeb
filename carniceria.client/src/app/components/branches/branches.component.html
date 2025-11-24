@@ -1,0 +1,38 @@
+<div class="w-full p-2">
+    <div class="flex justify-between">
+        <h2>Sucursales</h2>
+        <button mat-raised-button color="accent" (click)="createBranch()">Crear Sucursal</button>
+    </div>
+    @if (isLoading){
+        <p>Cargando sucursales...</p>
+    }
+    @else if (errorMessage){
+        <div class="grid place-content-center">
+            <p class="text-red-500">Error al cargar las sucursales</p>
+            <button mat-raised-button (click)="loadBranches()" class="">Reintentar</button>
+        </div>
+    }
+    @else if (branches.length === 0) {
+        <p>No hay sucursales disponibles.</p>
+    }
+    @else {
+        <p>Aqui van las branches</p>
+        <div class="flex p-2 justify-center gap-4">
+            @for (branch of branches; track branch.branchId){
+                <mat-card class="flex justify-center items-center w-full" appearance="outlined">
+                    <mat-card-header>
+                        <mat-card-title>{{ branch.name }}</mat-card-title>
+                    </mat-card-header>
+                    <mat-card-content>
+                        <p>Dirección: {{ branch.address }}</p>
+                        <p>Teléfono: {{ branch.phone }}</p>
+                    </mat-card-content>
+                    <mat-card-actions>
+                        <button mat-button color="primary"><i class="bi bi-pencil-fill"></i></button>
+                        <button mat-button color="warn"><i class="bi bi-trash-fill"></i></button>
+                    </mat-card-actions>
+                </mat-card>
+            }
+        </div>
+    }
+</div>

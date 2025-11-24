@@ -11,6 +11,7 @@ namespace DataBase_Carniceria.DTOs.Products
         public string Name { get; set; } = null!;
         public decimal Price { get; set; } 
         public decimal Stock { get; set; }
+        public string Code { get; set; } = null!;
         public int CategoryId { get; set; }
         public int UnitId { get; set; }
         public bool Active { get; set; }

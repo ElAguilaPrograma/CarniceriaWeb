@@ -1,5 +1,8 @@
 ﻿using DataBase_Carniceria;
+using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.AspNetCore.Mvc.ModelBinding.Binders;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using System.Threading.Tasks;
 
 namespace Carniceria.Server.Services
@@ -7,7 +10,8 @@ namespace Carniceria.Server.Services
 
     public interface IProductsService
     {
-        int GenerateRandomCode();
+        Product CalculetePriceMeat(Product product, decimal weight);
+        string GenerateRandomCode();
     }
 
     public class ProductsService: IProductsService
@@ -19,13 +23,24 @@ namespace Carniceria.Server.Services
             _context = context;
         }
 
-        public int GenerateRandomCode()
+        public string GenerateRandomCode()
         {
             Random random = new Random();
 
             int code = random.Next(1000, 10000);
+            string codeStr = code.ToString();
+            return codeStr;
+        }
 
-            return code;
+        public Product CalculetePriceMeat(Product product, decimal weight)
+        {
+            var priceByKg = product.Price;
+
+            var result = (weight * priceByKg)/1;
+            var newCode = GenerateRandomCode();
+            product.Price = result;
+            product.Code = newCode;
+            return product;
         }
 
     }
