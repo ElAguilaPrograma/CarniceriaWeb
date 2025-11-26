@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { BranchService } from '../../services/branch.service';
 
 @Component({
   selector: 'app-home',
@@ -7,5 +8,9 @@ import { Component } from '@angular/core';
   styleUrl: './home.component.css'
 })
 export class HomeComponent {
+  nameBranch: string = localStorage.getItem('selectedBranch') ? JSON.parse(localStorage.getItem('selectedBranch') || '{}').name : 'Sucursal Desconocida';
+  constructor(private branchService: BranchService) { }
+
+
 
 }

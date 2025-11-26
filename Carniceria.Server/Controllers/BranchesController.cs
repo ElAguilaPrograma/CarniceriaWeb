@@ -85,7 +85,7 @@ namespace Carniceria.Server.Controllers
         }
 
         [HttpPut("updatebranch/{branchId}")]
-        public async Task<IActionResult> UpdateBranch(int branchId, [FromBody] BranchUpdateRequest request)
+        public async Task<IActionResult> UpdateBranch([FromBody] BranchUpdateRequest request, int branchId)
         {
             try
             {
@@ -107,13 +107,13 @@ namespace Carniceria.Server.Controllers
 
                 return Ok(new
                 {
-                    message = "Tarea actualizada con exito",
+                    message = "Sucursal actualizada con exito",
                     branchId = branch.BranchId
                 });
             }
             catch (Exception ex)
             {
-                return StatusCode(500, $"Errror al actualizar la tarea: {ex.Message}");
+                return StatusCode(500, $"Errror al actualizar la sucursal: {ex.Message}");
             }
         }
 

@@ -1,5 +1,5 @@
-import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
-import { NgModule } from '@angular/core';
+import { HTTP_INTERCEPTORS, HttpClientModule, provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
+import { NgModule, provideZoneChangeDetection } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { AppRoutingModule } from './app-routing.module';
@@ -21,6 +21,10 @@ import { RegisterComponent } from './components/register/register.component';
 import { HomeComponent } from './components/home/home.component';
 import { BranchesComponent } from './components/branches/branches.component';
 import { AuthInterceptor } from './services/auth.interceptor';
+import { HlmCard, HlmCardHeader, HlmCardFooter } from "@spartan-ng/helm/card";
+import { ConfirmDeleteDialog } from './components/dialog/confirm-delete-dialog/confirm-delete-dialog';
+import { MatDialogClose, MatDialogTitle } from "@angular/material/dialog";
+import { provideRouter } from '@angular/router';
 
 
 @NgModule({
@@ -34,7 +38,8 @@ import { AuthInterceptor } from './services/auth.interceptor';
     LoginComponent,
     RegisterComponent,
     HomeComponent,
-    BranchesComponent
+    BranchesComponent,
+    ConfirmDeleteDialog
   ],
   imports: [
     BrowserModule,
@@ -43,13 +48,23 @@ import { AuthInterceptor } from './services/auth.interceptor';
     AppRoutingModule,
     FormsModule,
     MatButtonModule,
-    MatCardModule
+    MatCardModule,
+    HlmCard,
+    HlmCardHeader,
+    HlmCardFooter,
+    MatDialogClose,
+    MatDialogTitle
+],
+  providers: [
+    provideZoneChangeDetection({eventCoalescing: true}),
+    provideRouter([]),
+    provideHttpClient(withInterceptorsFromDi()),
+    {
+      provide: HTTP_INTERCEPTORS,
+      useClass: AuthInterceptor,
+      multi: true
+    }
   ],
-  providers: [{
-    provide: HTTP_INTERCEPTORS,
-    useClass: AuthInterceptor,
-    multi: true
-  }],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

@@ -2,12 +2,12 @@
     <app-header (toggleSidebar)="toggleSidebar()"></app-header>
 
     <div class="flex flex-1 overflow-hidden">
-        @if (token !== ''){
+        @if (token !== '' && showSidebar){
             <app-sidebar [collapsed]="isSidebarCollapsed"></app-sidebar>
         }
 
-        <div class="flex-1 overflow-y-auto transition-all duration-300 ml-0"
-             [ngClass]="{ 'ml-64': !isSidebarCollapsed, 'sm:ml-64': !isSidebarCollapsed }">
+        <div class="flex-1 overflow-y-auto transition-all duration-300"
+             [ngClass]="{ 'ml-64': showSidebar && !isSidebarCollapsed, 'sm:ml-64': showSidebar && !isSidebarCollapsed }">
             <router-outlet></router-outlet>
         </div>
     </div>

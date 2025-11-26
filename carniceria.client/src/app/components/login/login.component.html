@@ -1,51 +1,100 @@
-<div class="login-container">
-    <div class="login-card">
-        <div class="login-header">
-            <h2>Bienvenido</h2>
-            <p>Inicie sesión en su cuenta</p>
-        </div>
-
-        <form (ngSubmit)="onLogin(loginForm)" #loginForm="ngForm" class="login-form">
-            <div class="form-group">
-                <label>Correo electronico</label>
-                <i class="bi bi-envelope input-icon"></i>
-                <input
-                    type="email"
-                    class="form-control"
-                    placeholder=" "
-                    required
-                    [(ngModel)]="loginData.email"
-                    name="email" />
+<!-- Contenedor principal: centrado vertical y horizontal con margen superior -->
+<div class="min-h-screen flex items-center justify-center bg-linear-to-br from-indigo-50 via-white to-purple-50 px-4 py-8 bg-gray-400">
+    
+    <!-- Card principal del login -->
+    <mat-card class="w-full max-w-md shadow-2xl rounded-2xl overflow-hidden border border-gray-100">
+        
+        <!-- Header de la card -->
+        <mat-card-header class="bg-gray-300 p-8 text-center px-4 py-4 justify-center border border-gray-100">
+            <div class="flex flex-col items-center space-y-2">
+                <h2 class="text-3xl font-bold tracking-tight">Bienvenido</h2>
+                <mat-card-title class="text-lg font-medium">Iniciar Sesión</mat-card-title>
             </div>
+        </mat-card-header>
+        
+        <!-- Contenido del formulario -->
+        <mat-card-content class="p-8 px-4 py-4 bg-white">
+            <form (ngSubmit)="onLogin(loginForm)" #loginForm="ngForm" class="space-y-6">
+                
+                <!-- Campo de correo electrónico -->
+                <div class="relative">
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">
+                        Correo electrónico
+                    </label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                            <i class="bi bi-envelope text-gray-400 text-lg"></i>
+                        </div>
+                        <input
+                            type="email"
+                            class="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200 outline-none bg-gray-50 hover:bg-white"
+                            placeholder="correo@ejemplo.com"
+                            required
+                            [(ngModel)]="loginData.email"
+                            name="email" />
+                    </div>
+                </div>
 
-            <div class="form-group">
-                <label>Contraseña</label>
-                <i class="bi bi-lock input-icon"></i>
-                <input
-                    type="password"
-                    class="form-control"
-                    placeholder=" "
-                    required
-                    [(ngModel)]="loginData.password"
-                    name="password"/>
+                <!-- Campo de contraseña -->
+                <div class="relative">
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">
+                        Contraseña
+                    </label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                            <i class="bi bi-lock text-gray-400 text-lg"></i>
+                        </div>
+                        <input
+                            type="password"
+                            class="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200 outline-none bg-gray-50 hover:bg-white"
+                            placeholder="••••••••"
+                            required
+                            [(ngModel)]="loginData.password"
+                            name="password"/>
+                    </div>
+                </div>
+
+                <!-- Botón de inicio de sesión -->
+                <button 
+                    type="submit" 
+                    [disabled]="!loginForm.valid"
+                    class="w-full bg-linear-to-r from-indigo-600 to-purple-600 text-white font-semibold py-3 px-6 rounded-lg hover:from-indigo-700 hover:to-purple-700 focus:outline-none focus:ring-4 focus:ring-indigo-300 transition-all duration-300 transform hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none shadow-lg flex items-center justify-center gap-2">
+                    <span>Iniciar Sesión</span>
+                    <i class="bi bi-arrow-right text-lg"></i>
+                </button>
+            </form>
+        </mat-card-content>
+        
+        <!-- Footer del card -->
+        <mat-card-footer class="bg-gray-50 p-6 border-t border-gray-100">
+            <div class="text-center space-y-4">
+                <!-- Registro -->
+                <div class="flex flex-col items-center gap-3">
+                    <p class="text-sm text-gray-600">¿No tienes cuenta?</p>
+                    <button 
+                        routerLink="/register"
+                        class="text-indigo-600 hover:text-indigo-700 font-semibold text-sm hover:underline flex items-center gap-2 transition-colors duration-200">
+                        <span>Crear Cuenta</span>
+                        <i class="bi bi-person-plus"></i>
+                    </button>
+                </div>
+                
+                <!-- Volver al inicio -->
+                <a 
+                    routerLink="/main" 
+                    class="inline-flex items-center gap-2 text-gray-500 hover:text-gray-700 text-sm transition-colors duration-200">
+                    <i class="bi bi-arrow-left"></i>
+                    <span>Volver al inicio</span>
+                </a>
             </div>
-
-            <button class="login-btn" type="submit" [disabled]="!loginForm.valid">
-                <span>Iniciar Sesión</span>
-                <i class="bi bi-arrow-right"></i>
-            </button>
-        </form>
-
-        <div class="login-footer">
-            <p>¿No tienes cuenta?</p>
-            <button class="btn-register" routerLink="/register">
-                <span>Crear Cuenta</span>
-                <i class="bi bi-person-plus"></i>
-            </button>
-        </div>
-        <a routerLink="/main">Volver al inicio</a>
-    </div>
+        </mat-card-footer>
+    </mat-card>
+    
+    <!-- Mensaje de error -->
     @if (loginError) {
-        <div class="alert alert-danger">Correo o contraseña incorrectos</div>
+        <div class="fixed top-4 right-4 bg-red-500 text-white px-6 py-4 rounded-lg shadow-lg flex items-center gap-3 animate-fadeIn">
+            <i class="bi bi-exclamation-circle text-2xl"></i>
+            <span class="font-medium">Correo o contraseña incorrectos</span>
+        </div>
     }
-</div>
+

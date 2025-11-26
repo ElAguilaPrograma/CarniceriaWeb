@@ -77,16 +77,19 @@ namespace Carniceria.Server.Controllers
                 });
             }
 
-            var token = GenereteJwtToken(user);
+            var tokenExpiration = DateTime.UtcNow.AddHours(1);
+            var token = GenereteJwtToken(user, tokenExpiration);
 
-            return Ok( new {
+            return Ok(new
+            {
                 Success = true,
-                token
+                token,
+                expiresAt = tokenExpiration
             });
         }
 
         //Generar el JWT
-        private string GenereteJwtToken(User user)
+        private string GenereteJwtToken(User user, DateTime expiration)
         {
             var claims = new[]
             {
@@ -104,7 +107,7 @@ namespace Carniceria.Server.Controllers
                 audience: _config["Jwt:Audience"],
                 claims: claims,
                 //Aqui se maneja el tiempo de expiracion del token
-                expires: DateTime.Now.AddHours(1),
+                expires: expiration,
                 signingCredentials: creds
             );
 

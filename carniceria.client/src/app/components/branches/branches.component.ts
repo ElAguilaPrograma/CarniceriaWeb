@@ -1,7 +1,11 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, EventEmitter, OnInit, Output } from '@angular/core';
 import { AuthService } from '../../services/auth.service';
 import { BranchService } from '../../services/branch.service';
 import { IBranch } from '../../models/branch.model';
+import { NgForm } from '@angular/forms';
+import { MatDialog } from '@angular/material/dialog';
+import { ConfirmDeleteDialog } from '../dialog/confirm-delete-dialog/confirm-delete-dialog';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-branches',
@@ -19,14 +23,24 @@ export class BranchesComponent implements OnInit {
     phone: ''
   };
   noBranches: boolean = false;
+  openCreateBranchModal: boolean = false;
+  openUpdateBranchModal: boolean = false;
+  selectedBranch: IBranch = { name: '', address: '', phone: '' };
 
   constructor(
-    private authService: AuthService,
-    private branchService: BranchService
+    private router: Router,
+    private branchService: BranchService,
+    private dialog: MatDialog,
   ) { }
 
   ngOnInit(): void {
     this.loadBranches();
+  }
+
+  showIdFromCurrenteEdintingBranch(): void {
+    if (this.openUpdateBranchModal){
+      console.log('Current editing branch ID:', this.selectedBranch.branchId);
+    }
   }
 
   loadBranches(): void {
@@ -45,7 +59,88 @@ export class BranchesComponent implements OnInit {
     });
   }
 
-  createBranch(): void {
-    // Implementation for creating a branch goes here
+  createBranch(form: NgForm): void {
+    if (form.valid) {
+      this.branchService.create(this.branchData).subscribe({
+        next: (res) => {
+          console.log('Branch created:', res);
+          this.loadBranches();
+          this.openCreateBranchModal = false;
+          form.resetForm(); // Reset form after successful submission
+        },
+        error: (err) => {
+          this.errorMessage = 'Error creating branch';
+          console.error('Error creating branch:', err);
+        }
+      });
+    }
   }
+
+  updateBranch(form: NgForm): void {
+    if (form.valid && this.selectedBranch.branchId) {
+      this.branchService.update(this.selectedBranch, this.selectedBranch.branchId).subscribe({
+        next: (res) => {
+          console.log('Branch updated:', res);
+          this.loadBranches();
+          this.openUpdateBranchModal = false;
+          form.resetForm(); // Reset form after successful submission
+        },
+        error: (err) => {
+          this.errorMessage = 'Error updating branch';
+          console.error('Error updating branch:', err);
+        }
+      })
+    };
+  }
+
+  deleteBranch(branchId: number): void {
+    const dialogRef = this.dialog.open(ConfirmDeleteDialog, {
+      width: '350px',
+      disableClose: true,
+      enterAnimationDuration: '250ms',
+      exitAnimationDuration: '150ms'
+    });
+
+    dialogRef.afterClosed().subscribe((result: boolean) => {
+      if (result) {
+        this.branchService.delete(branchId).subscribe({
+          next: (res) => {
+            console.log('Branch deleted:', res);
+            this.loadBranches();
+          },
+          error: (err) => {
+            this.errorMessage = 'Error deleting branch';
+            console.error('Error deleting branch:', err);
+          }
+        })
+      }
+    });
+  }
+
+    setBranchSelectedInLocalStorage(branch: IBranch): void {
+    this.selectedBranch = branch;
+    console.log("Sucursal seleccionada: ", this.selectedBranch);
+
+    if (localStorage.getItem('selectedBranch') !== null) {
+      localStorage.removeItem('selectedBranch');
+      localStorage.setItem('selectedBranch', JSON.stringify({ branchId: this.selectedBranch.branchId, name: this.selectedBranch.name }));
+    }
+    else {
+      localStorage.setItem('selectedBranch', JSON.stringify({ branchId: this.selectedBranch.branchId, name: this.selectedBranch.name }));
+    }
+  }
+
+  toggleCreateBranchModal(): void {
+    this.openCreateBranchModal = !this.openCreateBranchModal;
+  }
+
+  toggleUpdateBranchModal(branch: IBranch): void {
+    this.openUpdateBranchModal = !this.openUpdateBranchModal;
+    this.selectedBranch = { ...branch }; // Clone the branch data to avoid direct mutation
+  }
+
+  navigateToSelectedBranchHome(): void {
+    this.router.navigate(['/home']);
+  }
+
 }

@@ -1,6 +1,6 @@
 <header class="w-full text-black flex items-center justify-between px-6 py-3 shadow-md z-50 relative">
     <div class="flex items-center space-x-4">
-        @if (loginStatus){
+        @if (loginStatus && !hideCollapseSidebarIcon){
             <button 
               class="flex items-center justify-center text-black p-2 hover:rounded-full
                 transition-all duration-300 hover:bg-gray-300"
@@ -21,8 +21,8 @@
                      text-black px-4 py-2"
               routerLink="/branches"
             >
-              <span>Ir al menú</span>
-              <i class="bi bi-menu-up" style="color: black"></i>
+              <span>Sucursales</span>
+              <i class="bi bi-houses text-black"></i>
             </button>
 
             <button
@@ -31,7 +31,7 @@
               (click)="logOut()"
             >
               <span>Salir de la cuenta</span>
-              <i class="bi bi-box-arrow-in-left" style="color: black"></i>
+              <i class="bi bi-box-arrow-in-left text-black"></i>
             </button>
         }
         @else{

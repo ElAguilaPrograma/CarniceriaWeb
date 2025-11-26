@@ -1,0 +1,15 @@
+<div class="p-6 bg-white rounded-lg">
+    <div class="flex items-center">
+        <i class="bi bi-trash3"></i>
+        <h2 mat-dialog-title class="text-xl font-bold text-gray-900 mb-2">Confirmar eliminación</h2>
+    </div>
+
+    <div mat-dialog-content class="mb-6">
+        <p class="text-gray-600 text-base">¿Estás seguro de que deseas eliminar este elemento?</p>
+    </div>
+
+    <div mat-dialog-actions align="end" class="flex justify-end gap-3">
+        <button mat-button (click)="onCancel()" class="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-md transition-colors font-medium">Cancelar</button>
+        <button mat-button color="warn" (click)="onConfirm()" class="px-4 py-2 bg-red-600 hover:bg-red-700 text-red rounded-md transition-colors font-medium shadow-sm">Eliminar</button>
+    </div>
+</div>

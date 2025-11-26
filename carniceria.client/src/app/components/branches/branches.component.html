@@ -1,7 +1,8 @@
-<div class="w-full p-2">
+<div class="w-full p-4">
     <div class="flex justify-between">
         <h2>Sucursales</h2>
-        <button mat-raised-button color="accent" (click)="createBranch()">Crear Sucursal</button>
+        <button mat-raised-button color="accent"
+         (click)="toggleCreateBranchModal()">Crear Sucursal</button>
     </div>
     @if (isLoading){
         <p>Cargando sucursales...</p>
@@ -16,23 +17,260 @@
         <p>No hay sucursales disponibles.</p>
     }
     @else {
-        <p>Aqui van las branches</p>
-        <div class="flex p-2 justify-center gap-4">
-            @for (branch of branches; track branch.branchId){
-                <mat-card class="flex justify-center items-center w-full" appearance="outlined">
-                    <mat-card-header>
-                        <mat-card-title>{{ branch.name }}</mat-card-title>
-                    </mat-card-header>
-                    <mat-card-content>
-                        <p>Dirección: {{ branch.address }}</p>
-                        <p>Teléfono: {{ branch.phone }}</p>
-                    </mat-card-content>
-                    <mat-card-actions>
-                        <button mat-button color="primary"><i class="bi bi-pencil-fill"></i></button>
-                        <button mat-button color="warn"><i class="bi bi-trash-fill"></i></button>
-                    </mat-card-actions>
-                </mat-card>
+        <div class="grid gap-4 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 pt-2">
+            @for (branch of branches; track branch.branchId) {
+                <div class="p-2 h-full">
+                    <mat-card class="branch-card h-full flex flex-col justify-between text-center bg-white border
+                                     border-black/30 shadow-sm transform transition duration-200 ease-in-out 
+                                     hover:-translate-y-1 hover:scale-105 hover:shadow-lg cursor-pointer
+                                     min-h-[280px] max-h-[280px]" (click)="setBranchSelectedInLocalStorage(branch) ; navigateToSelectedBranchHome()">
+                        <mat-card-header class="justify-center min-h-[60px] flex items-center">
+                            <mat-card-title class="line-clamp-2 text-center">{{ branch.name }}</mat-card-title>
+                        </mat-card-header>
+                        <mat-card-content class="grow flex flex-col justify-center min-h-[120px]">
+                            <p class="pt-1 font-semibold">Carniceria</p>
+                            <p class="line-clamp-2 text-sm mt-2">Ubicada en: {{ branch.address }}</p>
+                            <p class="text-sm mt-1">Teléfono: {{ branch.phone }}</p>
+                        </mat-card-content>
+                        <mat-card-actions class="flex justify-center gap-2 min-h-[60px] items-center">
+                            <button mat-button style="color: blue" (click)="toggleUpdateBranchModal(branch)" (click)="showIdFromCurrenteEdintingBranch()">Editar</button>
+                            <button mat-button color="warn" (click)="deleteBranch(branch.branchId!)">Eliminar</button>
+                        </mat-card-actions>
+                    </mat-card>
+                </div>
             }
         </div>
     }
 </div>
+
+<!-- Modal para crear las sucursales -->
+
+@if (openCreateBranchModal){
+    <div class="fixed inset-0 z-50 flex items-center justify-center px-4 py-6 sm:px-6 lg:px-8 animate-fadeIn" 
+         (click)="openCreateBranchModal = false">
+        <!-- Overlay con animación, osea esto es lo que genera la ventana como tal -->
+        <div class="fixed inset-0 bg-black bg-opacity-50 transition-opacity duration-300"></div>
+        
+        <!-- Modal con animación de escala -->
+        <div class="relative bg-white rounded-2xl shadow-2xl w-full max-w-md transform transition-all duration-300 ease-out scale-100 animate-scaleIn" 
+             (click)="$event.stopPropagation()">
+            
+            <!-- Header del modal -->
+            <div class="bg-linear-to-r from-blue-600 to-blue-700 rounded-t-2xl px-6 py-3">
+                <h2 class="text-3xl font-bold text-white text-center tracking-tight">
+                    Crear Sucursal
+                </h2>
+                <p class="text-blue-100 text-center mt-2 text-sm">
+                    Complete la información de la nueva sucursal
+                </p>
+            </div>
+
+            <!-- Formulario -->
+            <form (ngSubmit)="createBranch(createBranchForm)" #createBranchForm="ngForm" class="px-8 py-8">
+                <div class="space-y-6">
+                    
+                    <!-- Campo Nombre -->
+                    <div class="group">
+                        <label class="block text-sm font-semibold text-gray-700 mb-2 transition-colors group-focus-within:text-blue-600">
+                            Nombre de la Sucursal
+                        </label>
+                        <input 
+                            type="text"
+                            class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl
+                                   focus:outline-none focus:ring-4 focus:ring-blue-500 focus:ring-opacity-20 focus:border-blue-500
+                                   placeholder-gray-400 text-gray-800 shadow-sm
+                                   transition-all duration-200 ease-in-out
+                                   hover:border-gray-400"
+                            placeholder="Ej: Sucursal Centro"
+                            required
+                            [(ngModel)]="branchData.name"
+                            name="name"
+                        />
+                    </div>
+
+                    <!-- Campo Dirección -->
+                    <div class="group">
+                        <label class="block text-sm font-semibold text-gray-700 mb-2 transition-colors group-focus-within:text-blue-600">
+                            Dirección
+                        </label>
+                        <input 
+                            type="text"
+                            class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl
+                                   focus:outline-none focus:ring-4 focus:ring-blue-500 focus:ring-opacity-20 focus:border-blue-500
+                                   placeholder-gray-400 text-gray-800 shadow-sm
+                                   transition-all duration-200 ease-in-out
+                                   hover:border-gray-400"
+                            placeholder="Ej: Calle Principal #123"
+                            required
+                            [(ngModel)]="branchData.address"
+                            name="address"
+                        />
+                    </div>
+
+                    <!-- Campo Teléfono -->
+                    <div class="group">
+                        <label class="block text-sm font-semibold text-gray-700 mb-2 transition-colors group-focus-within:text-blue-600">
+                            Teléfono
+                        </label>
+                        <input 
+                            type="text"
+                            class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl
+                                   focus:outline-none focus:ring-4 focus:ring-blue-500 focus:ring-opacity-20 focus:border-blue-500
+                                   placeholder-gray-400 text-gray-800 shadow-sm
+                                   transition-all duration-200 ease-in-out
+                                   hover:border-gray-400"
+                            placeholder="Ej: (555) 123-4567"
+                            required
+                            [(ngModel)]="branchData.phone"
+                            name="phone"
+                        />
+                    </div>
+                </div>
+
+                <!-- Botones de acción -->
+                <div class="flex flex-col sm:flex-row gap-3 mt-8 pt-6 border-t border-gray-200">
+                    <button 
+                        type="submit" 
+                        class="flex-1 px-6 py-3 rounded-xl bg-linear-to-r from-blue-600 to-blue-700 text-white font-semibold
+                               shadow-lg hover:shadow-xl hover:from-blue-700 hover:to-blue-800
+                               transform hover:-translate-y-0.5 active:translate-y-0
+                               transition-all duration-200 ease-in-out
+                               focus:outline-none focus:ring-4 focus:ring-blue-500 focus:ring-opacity-50">
+                        <span class="flex items-center justify-center gap-2">
+                            Crear Sucursal
+                        </span>
+                    </button>
+                    <button 
+                        type="button" 
+                        (click)="toggleCreateBranchModal()" 
+                        class="flex-1 px-6 py-3 rounded-xl bg-gray-100 text-gray-700 font-semibold
+                               border-2 border-gray-300
+                               hover:bg-gray-200 hover:border-gray-400
+                               transform hover:-translate-y-0.5 active:translate-y-0
+                               transition-all duration-200 ease-in-out
+                               focus:outline-none focus:ring-4 focus:ring-gray-300 focus:ring-opacity-50">
+                        <span class="flex items-center justify-center gap-2">
+                            Cancelar
+                        </span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+}
+
+<!-- Modal para actualizar las sucursales -->
+
+@if (openUpdateBranchModal){
+    <div class="fixed inset-0 z-50 flex items-center justify-center px-4 py-6 sm:px-6 lg:px-8 animate-fadeIn" 
+         (click)="openUpdateBranchModal = false">
+        <!-- Overlay con animación, osea esto es lo que genera la ventana como tal -->
+        <div class="fixed inset-0 bg-black bg-opacity-50 transition-opacity duration-300"></div>
+        
+        <!-- Modal con animación de escala -->
+        <div class="relative bg-white rounded-2xl shadow-2xl w-full max-w-md transform transition-all duration-300 ease-out scale-100 animate-scaleIn" 
+             (click)="$event.stopPropagation()">
+            
+            <!-- Header del modal -->
+            <div class="bg-linear-to-r from-blue-600 to-blue-700 rounded-t-2xl px-6 py-3">
+                <h2 class="text-3xl font-bold text-white text-center tracking-tight">
+                    Editar Sucursal
+                </h2>
+                <p class="text-blue-100 text-center mt-2 text-sm">
+                    Complete la información de la sucursal
+                </p>
+            </div>
+
+            <!-- Formulario -->
+            <form (ngSubmit)="updateBranch(updateBranchForm)" #updateBranchForm="ngForm" class="px-8 py-8">
+                <div class="space-y-6">
+                    
+                    <!-- Campo Nombre -->
+                    <div class="group">
+                        <label class="block text-sm font-semibold text-gray-700 mb-2 transition-colors group-focus-within:text-blue-600">
+                            Nombre de la Sucursal
+                        </label>
+                        <input 
+                            type="text"
+                            class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl
+                                   focus:outline-none focus:ring-4 focus:ring-blue-500 focus:ring-opacity-20 focus:border-blue-500
+                                   placeholder-gray-400 text-gray-800 shadow-sm
+                                   transition-all duration-200 ease-in-out
+                                   hover:border-gray-400"
+                            placeholder="Ej: Sucursal Centro"
+                            required
+                            [(ngModel)]="selectedBranch.name"
+                            name="name"
+                        />
+                    </div>
+
+                    <!-- Campo Dirección -->
+                    <div class="group">
+                        <label class="block text-sm font-semibold text-gray-700 mb-2 transition-colors group-focus-within:text-blue-600">
+                            Dirección
+                        </label>
+                        <input 
+                            type="text"
+                            class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl
+                                   focus:outline-none focus:ring-4 focus:ring-blue-500 focus:ring-opacity-20 focus:border-blue-500
+                                   placeholder-gray-400 text-gray-800 shadow-sm
+                                   transition-all duration-200 ease-in-out
+                                   hover:border-gray-400"
+                            placeholder="Ej: Calle Principal #123"
+                            required
+                            [(ngModel)]="selectedBranch.address"
+                            name="address"
+                        />
+                    </div>
+
+                    <!-- Campo Teléfono -->
+                    <div class="group">
+                        <label class="block text-sm font-semibold text-gray-700 mb-2 transition-colors group-focus-within:text-blue-600">
+                            Teléfono
+                        </label>
+                        <input 
+                            type="text"
+                            class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl
+                                   focus:outline-none focus:ring-4 focus:ring-blue-500 focus:ring-opacity-20 focus:border-blue-500
+                                   placeholder-gray-400 text-gray-800 shadow-sm
+                                   transition-all duration-200 ease-in-out
+                                   hover:border-gray-400"
+                            placeholder="Ej: (555) 123-4567"
+                            required
+                            [(ngModel)]="selectedBranch.phone"
+                            name="phone"
+                        />
+                    </div>
+                </div>
+
+                <!-- Botones de acción -->
+                <div class="flex flex-col sm:flex-row gap-3 mt-8 pt-6 border-t border-gray-200">
+                    <button 
+                        type="submit" 
+                        class="flex-1 px-6 py-3 rounded-xl bg-linear-to-r from-blue-600 to-blue-700 text-white font-semibold
+                               shadow-lg hover:shadow-xl hover:from-blue-700 hover:to-blue-800
+                               transform hover:-translate-y-0.5 active:translate-y-0
+                               transition-all duration-200 ease-in-out
+                               focus:outline-none focus:ring-4 focus:ring-blue-500 focus:ring-opacity-50">
+                        <span class="flex items-center justify-center gap-2">
+                            Editar Sucursal
+                        </span>
+                    </button>
+                    <button 
+                        type="button" 
+                        (click)="toggleUpdateBranchModal(selectedBranch)" 
+                        class="flex-1 px-6 py-3 rounded-xl bg-gray-100 text-gray-700 font-semibold
+                               border-2 border-gray-300
+                               hover:bg-gray-200 hover:border-gray-400
+                               transform hover:-translate-y-0.5 active:translate-y-0
+                               transition-all duration-200 ease-in-out
+                               focus:outline-none focus:ring-4 focus:ring-gray-300 focus:ring-opacity-50">
+                        <span class="flex items-center justify-center gap-2">
+                            Cancelar
+                        </span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+}

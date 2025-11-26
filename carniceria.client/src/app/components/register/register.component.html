@@ -1,59 +1,72 @@
-<div class="register-conteiner">
-    <div class="register-carg">
-        <div class="register-header">
-            <h2>Crea tu cuenta</h2>
-            <p>Completa todos los campos para registrarte</p>
-        </div>
-
-        <form (ngSubmit)="onRegister(registerForm)" #registerForm="ngForm" class="register-form">
-            <div class="form-group">
-                <label>Nombre</label>
-                <i class="bi bi-envelope input-icon"></i>
-                <input
-                    type="text"
-                    class="form-control"
-                    placeholder=" "
-                    required
-                    [(ngModel)]="registerData.name"
-                    name="name" />
+<div class="min-h-screen flex items-center justify-center">
+    <mat-card class="w-full max-w-md shadow-2xl rounded-2xl overflow-hidden border border-gray-100 bg-white">
+        <mat-card-header class="text-center px-4 py-4 justify-center bg-gray-300 border border-gray-100">
+            <div>
+                <h2>Crea tu cuenta</h2>
+                <p>Completa todos los campos para registrarte</p>
             </div>
-            <div class="form-group">
-                <label>Correo electronico</label>
-                <i class="bi bi-envelope input-icon"></i>
-                <input
-                    type="email"
-                    class="form-control"
-                    placeholder=" "
-                    required
-                    [(ngModel)]="registerData.email"
-                    name="email" />
-            </div>
+        </mat-card-header>
+        <mat-card-content class="p-8 px-4 py-4">
+            <form (ngSubmit)="onRegister(registerForm)" #registerForm="ngForm" class="space-y-6">
+                <div class="relative">
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">Nombre</label>
+                    <i class="bi bi-person px-2"></i>
+                    <input
+                        type="text"
+                        class="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200 outline-none bg-gray-50 hover:bg-white"
+                        placeholder="Jesús Eduardo...."
+                        required
+                        [(ngModel)]="registerData.name"
+                        name="name" />
+                </div>
+                <div class="relative">
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">Correo electronico</label>
+                    <i class="bi bi-envelope px-2"></i>
+                    <input
+                        type="email"
+                        class="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200 outline-none bg-gray-50 hover:bg-white"
+                        placeholder="ejemplo@correo.com"
+                        required
+                        [(ngModel)]="registerData.email"
+                        name="email" />
+                </div>
 
-            <div class="form-group">
-                <label>Contraseña</label>
-                <i class="bi bi-lock input-icon"></i>
-                <input
-                    type="password"
-                    class="form-control"
-                    placeholder=" "
-                    required
-                    [(ngModel)]="registerData.password"
-                    name="password"/>
-            </div>
+                <div class="relative">
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">Contraseña</label>
+                    <i class="bi bi-lock px-2"></i>
+                    <input
+                        type="password"
+                        class="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200 outline-none bg-gray-50 hover:bg-white"
+                        placeholder="••••••••"
+                        required
+                        [(ngModel)]="registerData.password"
+                        name="password"/>
+                </div>
 
-            <button class="register-btn" type="submit" [disabled]="!registerForm.valid" >
-                <span>Registrarse</span>
-                <i class="bi bi-arrow-right"></i>
-            </button>
-            
-            <div class="register-footer">
+                <button class="w-full bg-indigo-600 text-white py-3 rounded-lg hover:bg-indigo-700 transition-all duration-200" type="submit" [disabled]="!registerForm.valid" >
+                    <span>Registrarse</span>
+                    <i class="bi bi-arrow-right"></i>
+                </button>
+            </form>
+        </mat-card-content>
+        <mat-card-footer class="text-center bg-gray-50 border-t border-gray-100">
+            <div class="py-2 flex items-center justify-center gap-3 flex-col">
                 <p>¿Ya tienes cuenta?</p>
-                <button class="btn-login" routerLink="/login">
+
+                <button class="bg-indigo-400 text-white py-2 px-4 rounded-lg hover:bg-indigo-500 transition-all duration-200" routerLink="/login">
                     <span>Iniciar sesión</span>
                     <i class="bi bi-box-arrow-in-right"></i>
                 </button>
+
+                <!-- Volver al inicio -->
+                <a 
+                    routerLink="/main" 
+                    class="inline-flex items-center gap-2 text-gray-500 hover:text-gray-700 text-sm transition-colors duration-200">
+                    <i class="bi bi-arrow-left"></i>
+                    <span>Volver al inicio</span>
+                </a>
             </div>
-        </form>
-        <a routerLink="/main">Volver al inicio</a>
-    </div>
+        </mat-card-footer>
+    </mat-card>
 </div>
+
