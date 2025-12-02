@@ -147,5 +147,23 @@ namespace Carniceria.Server.Controllers
                 return StatusCode(500, $"Error al eliminar la sucursal {ex.Message}");
             }
         }
+
+        [HttpGet("getcurrentbranchdata/{branchId}")]
+        public async Task<IActionResult> GetCurrenteBranchData(int branchId)
+        {
+            try
+            {
+                var branchExist = await _context.Branches.AnyAsync(b => b.BranchId == branchId);
+                if (!branchExist) return NotFound("Sucursal no encontrada");
+
+                var branchData = await _context.Branches.FirstOrDefaultAsync(b => b.BranchId == branchId);
+
+                return Ok(branchData);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Error al obtener los datos de la sucursal");
+            }
+        }
     }
 }

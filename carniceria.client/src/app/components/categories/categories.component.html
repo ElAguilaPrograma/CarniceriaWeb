@@ -1,0 +1,58 @@
+<div class="p-2">
+    <div class="flex justify-between p-1">
+        <h2 class="text-2xl font-semibold mb-4">Categorías</h2>
+        <app-button type="new" (click)="toggleOpenCreateCategoryModal()">
+            <span class="">Nueva Categoria</span>
+        </app-button>
+    </div>
+    <div>
+        <p>Administrar las categorías de productos disponibles en las sucursales.</p>
+        <table class="w-full border border-gray-400 border-collapse text-center">
+            <thead class="bg-gray-50">
+                <tr>
+                    <th class="border border-gray-300 px-4 py-2">Nombre</th>
+                    <th class="border border-gray-300 px-4 py-2">Acciones</th>
+                </tr>
+            </thead>
+            <tbody class="bg-white">
+                @for (category of categoriesData; track category.categoryId) {
+                    <tr>
+                        <td class="border border-gray-300 px-4 py-2">{{ category.name }}</td>
+                        <td class="border border-gray-300 px-4 py-2">
+                            <app-button type="delete" (click)="deleteCategory(category.categoryId!)">
+                                <span>Eliminar</span>
+                            </app-button>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<app-modal-window [openModal]="openCreateCategoryModal" title="Agrega nueva Categoria" size="medium">
+    <div>
+        <form (ngSubmit)="createCategory(categoryForm)" #categoryForm="ngForm" class="space-y-4">
+            <div>
+                <label for="categoryName" class="block text">Nombre de la Categoria:</label>
+                <input
+                    type="text"
+                    id="categoryName"
+                    name="categoryName"
+                    [(ngModel)]="categoryData.name"
+                    pattern="^(?!\s*$)[a-zA-Z\s]+$"
+                    required
+                    class="w-full border border-gray-300 rounded px-3 py-2 mt-1"
+                />
+            </div>
+            <div class="flex justify-end pt-1">
+                <app-button type="delete" (click)="toggleOpenCreateCategoryModal()" class="mr-2">
+                    <span>Cancelar</span>
+                </app-button>
+                <app-button type="submit">
+                    <span>Crear Categoria</span>
+                </app-button>
+            </div>
+        </form>
+    </div>
+</app-modal-window>

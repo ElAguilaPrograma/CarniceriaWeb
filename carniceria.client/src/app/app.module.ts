@@ -6,7 +6,7 @@ import { AppRoutingModule } from './app-routing.module';
 
 // Angular Material Modules
 import { MatButtonModule } from '@angular/material/button';
-import {MatCardModule} from '@angular/material/card';
+import { MatCardModule } from '@angular/material/card';
 
 // Components
 import { AppComponent } from './app.component';
@@ -25,7 +25,10 @@ import { HlmCard, HlmCardHeader, HlmCardFooter } from "@spartan-ng/helm/card";
 import { ConfirmDeleteDialog } from './components/dialog/confirm-delete-dialog/confirm-delete-dialog';
 import { MatDialogClose, MatDialogTitle } from "@angular/material/dialog";
 import { provideRouter } from '@angular/router';
-
+import { ProductsComponent } from './components/products/products.component';
+import { ButtonComponent } from './shared/button/button.component';
+import { ModalWindowComponent } from './shared/modal-window/modal-window.component';
+import { CategoriesComponent } from './components/categories/categories.component';
 
 @NgModule({
   declarations: [
@@ -39,7 +42,11 @@ import { provideRouter } from '@angular/router';
     RegisterComponent,
     HomeComponent,
     BranchesComponent,
-    ConfirmDeleteDialog
+    ConfirmDeleteDialog,
+    ProductsComponent,
+    ButtonComponent,
+    ModalWindowComponent,
+    CategoriesComponent,
   ],
   imports: [
     BrowserModule,

@@ -1,0 +1,391 @@
+<div class="flex justify-center p-2 w-full flex-col">
+
+    <div class="flex justify-between px-6">
+        <p class="flex flex-col justify-center items-center text-6xl py-2">Productos de: {{ nameBranch }}</p>
+
+        <app-button type="new" class="mt-4" (click)="toggleSelectTypeProductModal()">
+            Agregar
+        </app-button>
+    </div>
+
+    <div>
+        <input type="search" (input)="loadSearchProducts($event.target.value)" placeholder="Buscar productos..." class="border border-gray-300 rounded px-2 py-2 w-full my-4 placeholder: text-gray-400" />
+    </div>
+
+    <table class="w-full border border-gray-400 border-collapse text-center">
+        <thead class="bg-gray-50">
+            <tr>
+                <th class="border border-gray-300 px-4 py-2">Codigo</th>
+                <th class="border border-gray-300 px-4 py-2">Nombre</th>
+                <th class="border border-gray-300 px-4 py-2">Precio</th>
+                <th class="border border-gray-300 px-4 py-2">Categoría</th>
+                <th class="border border-gray-300 px-4 py-2">Stock</th>
+                <th class="border border-gray-300 px-4 py-2">Registrado</th>
+                <th class="border border-gray-300 px-4 py-2">Activo</th>
+                <th class="border border-gray-300 px-4 py-2">Acciones</th>
+            </tr>
+        </thead>
+
+        <tbody class="bg-white">
+            @for (product of products; track product.productId) {
+                <tr>
+                    <td class="border border-gray-300 px-4 py-2">{{ product.code }}</td>
+                    <td class="border border-gray-300 px-4 py-2">{{ product.name }}</td>
+                    <td class="border border-gray-300 px-4 py-2">{{ product.price | currency:'MXN' }}</td>
+                    <td class="border border-gray-300 px-4 py-2">{{ product.categoryId }}</td>
+                    <td class="border border-gray-300 px-4 py-2">{{ product.stock }}</td>
+                    <td class="border border-gray-300 px-4 py-2">{{ product.registrationDate | date:'short' }}</td>
+                    <td class="border border-gray-300 px-4 py-2"> 
+                        @if (product.active){
+                            <span class="text-green-500">Activo</span>
+                        }
+                        @else {
+                            <span class="text-red-500">Inactivo</span>
+                        }
+                    </td>
+                    <td class="border border-gray-300 px-4 py-2">
+                        <app-button type="edit" class="mr-2" (click)="openUpdateProductModal = true ; currentProduct(product)">
+                            Editar
+                        </app-button>
+                        <app-button type="delete" (click)="toggleDeleteProductModal() ; currentProduct(product)">
+                            Eliminar
+                        </app-button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+<app-modal-window [openModal]="openSelectTypeProductModal" title="Seleccionar Tipo de Producto" size="small">
+  <div class="flex flex-col gap-4">
+    <p>Seleccione el tipo de producto que desea agregar:</p>
+    <div class="flex justify-around">
+        <app-button type="new" (click)="isGrocery = true; toggleCreateProductModal(); toggleSelectTypeProductModal()">Abarrote</app-button>
+        <app-button type="new" (click)="isGrocery = false; toggleCreateProductModal(); toggleSelectTypeProductModal()">Carnicería</app-button>
+    </div>
+    <div class="flex justify-end">
+        <app-button type="delete" (click)="toggleSelectTypeProductModal()">Cancelar</app-button>
+    </div>
+  </div>
+</app-modal-window>
+
+<!-- Modal para crear producto de abarrotes -->
+<app-modal-window [openModal]="openCreateProductModal && isGrocery" title="Agregar a Abarrote" size="medium">
+  <!-- Contenido del modal -->
+  <div>
+    <form (ngSubmit)="createProduct(productForm)" #productForm="ngForm" class="">
+        <div class="space-y-6">
+            <div>
+                <label class="">
+                Nombre:
+                </label>
+                <input type="text" 
+                   name="name" 
+                   placeholder="Carne..."
+                   required
+                   [(ngModel)]="productsData.name"
+                   class="border border-gray-300 rounded px-2 py-1 w-full placeholder: text-gray-400" 
+                />
+            </div>
+            <div>
+                <label class="">
+                Precio:
+                </label>
+                <input type="number" 
+                   name="price" 
+                   placeholder="100.00"
+                   required
+                   [(ngModel)]="productsData.price"
+                   class="border border-gray-300 rounded px-2 py-1 w-full placeholder: text-gray-400" 
+                />
+            </div>
+            <div>
+                <label class="">
+                Categoría:
+                </label>
+                <select 
+                    name="categoryId" 
+                    required
+                    [(ngModel)]="productsData.categoryId"
+                    class="border border-gray-300 rounded px-2 py-1 w-full placeholder: text-gray-400">
+                    @for (category of categories; track category.categoryId) {
+                        <option [ngValue]="category.categoryId">{{ category.name }}</option>
+                    }
+                </select>
+            </div>
+            <div>
+                <label class="">
+                Unidad:
+                </label>
+                <select 
+                    name="unitId" 
+                    required
+                    [(ngModel)]="productsData.unitId"
+                    class="border border-gray-300 rounded px-2 py-1 w-full placeholder: text-gray-400">
+                    @for (unit of units; track unit.unitId) {
+                        <option [ngValue]="unit.unitId">{{ unit.name }}</option>
+                    }
+                </select>
+            </div>
+            <div>
+                <label class="">
+                Código:
+                </label>
+                <input type="text" 
+                   name="code" 
+                   placeholder="1234 (opcional)"
+                   [(ngModel)]="productsData.code"
+                   class="border border-gray-300 rounded px-2 py-1 w-full placeholder: text-gray-400" 
+                />
+            </div>
+            <div>
+                <label class="">
+                Stock:
+                </label>
+                <input type="number" 
+                   name="stock" 
+                   placeholder="50"
+                   required
+                   [(ngModel)]="productsData.stock"
+                   class="border border-gray-300 rounded px-2 py-1 w-full placeholder: text-gray-400" 
+                />
+            </div>
+            <div>
+                <label class="">
+                Activo:
+                </label>
+                <select 
+                    name="active" 
+                    required
+                    [(ngModel)]="productsData.active"
+                    class="border border-gray-300 rounded px-2 py-1 w-full placeholder: text-gray-400">
+                    <option [ngValue]="true">Activo</option>
+                    <option [ngValue]="false">Inactivo</option>
+                </select>
+            </div>
+
+            <div class="flex gap-3 justify-end">
+                <app-button type="delete" (click)="openCreateProductModal = false">Cancelar</app-button>
+                <app-button type="submit">Guardar</app-button>
+            </div>
+        </div>
+    </form>
+  </div>
+</app-modal-window>
+
+<!-- Modal para crear producto de carniceria -->
+<app-modal-window [openModal]="openCreateProductModal && !isGrocery" title="Agregar a Carnicería" size="medium">
+  <!-- Contenido del modal -->
+  <div>
+    <form (ngSubmit)="createProduct(productForm)" #productForm="ngForm" class="">
+        <div class="space-y-6">
+            <div>
+                <label class="">
+                Nombre:
+                </label>
+                <input type="text" 
+                   name="name" 
+                   placeholder="Carne..."
+                   required
+                   [(ngModel)]="productsData.name"
+                   class="border border-gray-300 rounded px-2 py-1 w-full placeholder: text-gray-400" 
+                />
+            </div>
+            <div>
+                <label class="">
+                Precio:
+                </label>
+                <input type="number" 
+                   name="price" 
+                   placeholder="100.00"
+                   required
+                   [(ngModel)]="productsData.price"
+                   class="border border-gray-300 rounded px-2 py-1 w-full placeholder: text-gray-400" 
+                />
+            </div>
+            <div>
+                <label class="">
+                Categoría:
+                </label>
+                <select 
+                    name="categoryId" 
+                    required
+                    [(ngModel)]="productsData.categoryId"
+                    class="border border-gray-300 rounded px-2 py-1 w-full placeholder: text-gray-400">
+                    @for (category of categories; track category.categoryId) {
+                        <option [ngValue]="category.categoryId">{{ category.name }}</option>
+                    }
+                </select>
+            </div>
+            <div>
+                <label class="">
+                Unidad:
+                </label>
+                <select 
+                    name="unitId" 
+                    required
+                    [(ngModel)]="productsData.unitId"
+                    class="border border-gray-300 rounded px-2 py-1 w-full placeholder: text-gray-400">
+                    @for (unit of units; track unit.unitId) {
+                        <option [ngValue]="unit.unitId">{{ unit.name }}</option>
+                    }
+                </select>
+            </div>
+            <div>
+                <label class="">
+                Stock:
+                </label>
+                <input type="number" 
+                   name="stock" 
+                   placeholder="50"
+                   required
+                   [(ngModel)]="productsData.stock"
+                   class="border border-gray-300 rounded px-2 py-1 w-full placeholder: text-gray-400" 
+                />
+            </div>
+            <div>
+                <label class="">
+                Activo:
+                </label>
+                <select 
+                    name="active" 
+                    required
+                    [(ngModel)]="productsData.active"
+                    class="border border-gray-300 rounded px-2 py-1 w-full placeholder: text-gray-400">
+                    <option [ngValue]="true">Activo</option>
+                    <option [ngValue]="false">Inactivo</option>
+                </select>
+            </div>
+
+            <p class="text-left text-sm text-gray-400 font-serif">El codigo se generara automaticamente</p>
+
+            <div class="flex gap-3 justify-end">
+                <app-button type="delete" (click)="openCreateProductModal = false">Cancelar</app-button>
+                <app-button type="submit">Guardar</app-button>
+            </div>
+        </div>
+    </form>
+  </div>
+</app-modal-window>
+
+<!-- Modal para actualizar producto -->
+ <app-modal-window [openModal]="openUpdateProductModal"
+                   title="Actualizar Producto"
+                   size="medium">
+
+    <div>
+        <form (ngSubmit)="updateProduct(productUpdateForm)" #productUpdateForm="ngForm" class="">
+            <div class="space-y-6">
+                <div>
+                    <label class="">
+                    Nombre:
+                    </label>
+                    <input type="text" 
+                    name="name" 
+                    placeholder="Carne..."
+                    required
+                    [(ngModel)]="selectedProduct.name"
+                    class="border border-gray-300 rounded px-2 py-1 w-full placeholder: text-gray-400" 
+                    />
+                </div>
+                <div>
+                    <label class="">
+                    Precio:
+                    </label>
+                    <input type="number" 
+                    name="price" 
+                    placeholder="100.00"
+                    required
+                    [(ngModel)]="selectedProduct.price"
+                    class="border border-gray-300 rounded px-2 py-1 w-full placeholder: text-gray-400" 
+                    />
+                </div>
+                <div>
+                    <label class="">
+                    Categoría:
+                    </label>
+                    <select 
+                        name="categoryId" 
+                        required
+                        [(ngModel)]="selectedProduct.categoryId"
+                        class="border border-gray-300 rounded px-2 py-1 w-full placeholder: text-gray-400">
+                        @for (category of categories; track category.categoryId) {
+                            <option [ngValue]="category.categoryId">{{ category.name }}</option>
+                        }
+                    </select>
+                </div>
+                <div>
+                    <label class="">
+                    Unidad:
+                    </label>
+                    <select 
+                        name="unitId" 
+                        required
+                        [(ngModel)]="selectedProduct.unitId"
+                        class="border border-gray-300 rounded px-2 py-1 w-full placeholder: text-gray-400">
+                        @for (unit of units; track unit.unitId) {
+                            <option [ngValue]="unit.unitId">{{ unit.name }}</option>
+                        }
+                    </select>
+                </div>
+                <div>
+                    <label class="">
+                    Código:
+                    </label>
+                    <input type="text" 
+                    name="code" 
+                    placeholder="1234...."
+                    [(ngModel)]="selectedProduct.code"
+                    class="border border-gray-300 rounded px-2 py-1 w-full placeholder: text-gray-400" 
+                    />
+                    <app-button type="action" class="mt-2" (click)="generateCode()">Generar Código</app-button>
+                </div>
+                <div>
+                    <label class="">
+                    Stock:
+                    </label>
+                    <input type="number" 
+                    name="stock" 
+                    placeholder="50"
+                    required
+                    [(ngModel)]="selectedProduct.stock"
+                    class="border border-gray-300 rounded px-2 py-1 w-full placeholder: text-gray-400" 
+                    />
+                </div>
+                <div>
+                    <label class="">
+                    Activo:
+                    </label>
+                    <select 
+                        name="active" 
+                        required
+                        [(ngModel)]="selectedProduct.active"
+                        class="border border-gray-300 rounded px-2 py-1 w-full placeholder: text-gray-400">
+                        <option [ngValue]="true">Activo</option>
+                        <option [ngValue]="false">Inactivo</option>
+                    </select>
+                </div>
+
+                <div class="flex gap-3 justify-end">
+                    <app-button type="delete" (click)="openUpdateProductModal = false">Cancelar</app-button>
+                    <app-button type="submit">Guardar</app-button>
+                </div>
+            </div>
+        </form>
+    </div>
+ </app-modal-window>
+
+<!-- Modal para eliminar producto -->
+<app-modal-window [openModal]="openDeleteProductModal" 
+                  title="¿Desea eliminar el producto?" 
+                  size="small">
+    <div>
+        <p class="mb-4">Esta acción no se puede deshacer.</p>
+        <div class="flex justify-end gap-3">
+            <app-button type="delete" (click)="toggleDeleteProductModal()">Cancelar</app-button>
+            <app-button type="submit" (click)="deleteProduct(selectedProduct.productId!) ; toggleDeleteProductModal()">Eliminar</app-button>
+        </div>
+    </div>
+</app-modal-window>
+

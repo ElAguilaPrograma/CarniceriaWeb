@@ -3,6 +3,7 @@ import { AuthService } from '../../services/auth.service';
 import { filter, takeLast } from 'rxjs';
 import { AuthGuard } from '../../services/auth.guard';
 import { NavigationEnd, Route, Router } from '@angular/router';
+import { BranchService } from '../../services/branch.service';
 
 @Component({
   selector: 'app-header',
@@ -13,9 +14,11 @@ import { NavigationEnd, Route, Router } from '@angular/router';
 export class HeaderComponent implements OnInit{
   loginStatus: boolean = false;
   hideCollapseSidebarIcon: boolean = true;
+  nameBranch: string = "Bienvenido";
 
   constructor(private authService: AuthService,
-              private router: Router
+              private router: Router,
+              private branchService: BranchService
   ) { }
 
   @Output() toggleSidebar = new EventEmitter<void>();
@@ -27,8 +30,18 @@ export class HeaderComponent implements OnInit{
     ).subscribe((event: NavigationEnd) => {
       // Si la ruta es /branches, ocultar el ícono de colapsar el sidebar
       this.hideCollapseSidebarIcon = event.url.includes('/branches');
+      
+      // Si estamos en /branches, resetear el nombre a "Bienvenido"
+      if (event.url.includes('/branches')) {
+        this.branchService.resetBranchName();
+      }
     });
     this.printShowCollapseSidebarIcon();
+    
+    // Suscribirse a los cambios del nombre de la sucursal
+    this.branchService.branchName$.subscribe(name => {
+      this.nameBranch = name;
+    });
   }
 
   checkToken(): void {
@@ -48,4 +61,5 @@ export class HeaderComponent implements OnInit{
   printShowCollapseSidebarIcon(): void {
     console.log('hideCollapseSidebarIcon:', this.hideCollapseSidebarIcon);
   }
+
 }

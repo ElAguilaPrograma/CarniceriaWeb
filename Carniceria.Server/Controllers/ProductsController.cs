@@ -60,6 +60,12 @@ namespace Carniceria.Server.Controllers
                     Active = request.Active
                 };
 
+                var productCode = await _context.Products.AnyAsync(p => p.Code == request.Code);
+                if (productCode)
+                {
+                    return BadRequest("El codigo ya existe");
+                }
+
                 _context.Add(newProduct);
                 await _context.SaveChangesAsync();
 
@@ -146,6 +152,54 @@ namespace Carniceria.Server.Controllers
             catch (Exception ex)
             {
                 return StatusCode(500, $"Error al borrar el producto {ex.Message}");
+            }
+        }
+
+        [HttpGet("checkifproductcodeexist/{branchId}/{code}")]
+        public async Task<IActionResult> CheckIfProductCodeExist(int branchId, string code)
+        {
+            try
+            {
+                var branchExist = await _context.Branches.AnyAsync(b => b.BranchId == branchId);
+                if (!branchExist)
+                {
+                    return NotFound(new { error = "No se encontró la sucursal" });
+                }
+
+                var productCodeExist = await _context.Products
+                    .AnyAsync(p => p.BranchId == branchId && p.Code == code);
+
+                return Ok(new { exists = productCodeExist });
+            }
+            catch (Exception)
+            {
+                return StatusCode(500, new { error = "Error al validar el código del producto" });
+            }
+        }
+
+        [HttpGet("searchproduct-by-branch/{branchId}/{query}")]
+        public async Task<IActionResult> SearchProduct(int branchId, string query)
+        {
+            try
+            {
+                var branchExist = await _context.Branches.AnyAsync(b => b.BranchId == branchId);
+                if (!branchExist) return NotFound("Sucursal no encontrada");
+
+                // Si query esta vacio no se busca nada
+                if (string.IsNullOrWhiteSpace(query)) return Ok(new List<Product>());
+
+                query = query.ToLower();
+
+                var products = await _context.Products
+                    .Where(p => p.BranchId == branchId &&
+                          (p.Name.ToLower().Contains(query) || p.Code.ToLower().Contains(query)))
+                    .ToListAsync();
+
+                return Ok(products);
+            }
+            catch(Exception ex)
+            {
+                return StatusCode(500, $"Error al intentar buscar el producto {ex}");
             }
         }
     }

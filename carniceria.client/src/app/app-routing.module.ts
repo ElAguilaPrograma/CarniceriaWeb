@@ -8,6 +8,8 @@ import { RegisterComponent } from './components/register/register.component';
 import { HomeComponent } from './components/home/home.component';
 import { AuthGuard } from './services/auth.guard';
 import { BranchesComponent } from './components/branches/branches.component';
+import { ProductsComponent } from './components/products/products.component';
+import { CategoriesComponent } from './components/categories/categories.component';
 
 const routes: Routes = [
   { path: "", redirectTo: "main", pathMatch: "full" }, //Ruta por defecto
@@ -20,9 +22,11 @@ const routes: Routes = [
     //Aqui van los componentes que necesitan layout o header
     children: [
       { path: "main", component: MainComponent }, //sin guardia
-      { path: "settings", component: SettingsComponent, canActivate: [AuthGuard] },
+      { path: "settings", component: SettingsComponent, canActivate: [AuthGuard]},
       { path: "home", component: HomeComponent, canActivate: [AuthGuard]},
-      { path: "branches", component: BranchesComponent, canActivate: [AuthGuard]}
+      { path: "branches", component: BranchesComponent, canActivate: [AuthGuard]},
+      { path: "products", component: ProductsComponent, canActivate: [AuthGuard]},
+      { path: "categories", component: CategoriesComponent, canActivate: [AuthGuard]}
     ]
   }
 

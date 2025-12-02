@@ -77,7 +77,7 @@ namespace Carniceria.Server.Controllers
                 });
             }
 
-            var tokenExpiration = DateTime.UtcNow.AddHours(1);
+            var tokenExpiration = DateTime.UtcNow.AddDays(7);
             var token = GenereteJwtToken(user, tokenExpiration);
 
             return Ok(new

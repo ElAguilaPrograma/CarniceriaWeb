@@ -17,7 +17,7 @@ namespace Carniceria.Server.Controllers
             _context = context;
         }
 
-        [HttpGet("showmeasurenmtunit-by-branch{branchId}")]
+        [HttpGet("showmeasurementunit-by-branch/{branchId}")]
         public async Task<IActionResult> ShowMeasurementUnit(int branchId)
         {
             var measutementUnits = await _context.MeasurementUnits.ToListAsync();

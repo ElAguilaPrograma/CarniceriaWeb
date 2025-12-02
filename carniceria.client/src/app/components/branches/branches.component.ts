@@ -117,7 +117,7 @@ export class BranchesComponent implements OnInit {
     });
   }
 
-    setBranchSelectedInLocalStorage(branch: IBranch): void {
+  setBranchSelectedInLocalStorage(branch: IBranch): void {
     this.selectedBranch = branch;
     console.log("Sucursal seleccionada: ", this.selectedBranch);
 
@@ -128,6 +128,9 @@ export class BranchesComponent implements OnInit {
     else {
       localStorage.setItem('selectedBranch', JSON.stringify({ branchId: this.selectedBranch.branchId, name: this.selectedBranch.name }));
     }
+    
+    // Actualizar el nombre en el servicio para que se refleje en el header
+    this.branchService.updateBranchName(this.selectedBranch.name || 'Bienvenido');
   }
 
   toggleCreateBranchModal(): void {
