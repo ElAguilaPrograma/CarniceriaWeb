@@ -7,6 +7,7 @@ import { AppRoutingModule } from './app-routing.module';
 // Angular Material Modules
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 // Components
 import { AppComponent } from './app.component';
@@ -29,6 +30,7 @@ import { ProductsComponent } from './components/products/products.component';
 import { ButtonComponent } from './shared/button/button.component';
 import { ModalWindowComponent } from './shared/modal-window/modal-window.component';
 import { CategoriesComponent } from './components/categories/categories.component';
+import { CarnageComponent } from './components/carnage/carnage.component';
 
 @NgModule({
   declarations: [
@@ -47,6 +49,7 @@ import { CategoriesComponent } from './components/categories/categories.componen
     ButtonComponent,
     ModalWindowComponent,
     CategoriesComponent,
+    CarnageComponent,
   ],
   imports: [
     BrowserModule,
@@ -56,6 +59,7 @@ import { CategoriesComponent } from './components/categories/categories.componen
     FormsModule,
     MatButtonModule,
     MatCardModule,
+    MatTooltipModule,
     HlmCard,
     HlmCardHeader,
     HlmCardFooter,

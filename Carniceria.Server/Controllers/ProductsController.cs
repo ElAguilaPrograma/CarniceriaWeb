@@ -202,5 +202,57 @@ namespace Carniceria.Server.Controllers
                 return StatusCode(500, $"Error al intentar buscar el producto {ex}");
             }
         }
+
+        [HttpGet("searchmeat-by-branch/{branchId}/{query}")]
+        public async Task<IActionResult> SearchMeat(int branchId, string query)
+        {
+            try
+            {
+                var branchExist = await _context.Branches.AnyAsync(b => b.BranchId == branchId);
+                if (!branchExist) return NotFound("Sucursal no encontrada");
+
+                // Si query esta vacio no se busca nada
+                if (string.IsNullOrWhiteSpace(query)) return Ok(new List<Product>());
+
+                query = query.ToLower();
+
+                var products = await _context.Products
+                    .Where(p => p.BranchId == branchId &&
+                          (p.Name.ToLower().Contains(query) || p.Code.ToLower().Contains(query)) && p.CategoryId == 1)
+                    .ToListAsync();
+
+                return Ok(products);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Error al intentar buscar el producto {ex}");
+            }
+        }
+
+        [HttpGet("searchabarrote-by-branch/{branchId}/{query}")]
+        public async Task<IActionResult> SearchAbarrote(int branchId, string query)
+        {
+            try
+            {
+                var branchExist = await _context.Branches.AnyAsync(b => b.BranchId == branchId);
+                if (!branchExist) return NotFound("Sucursal no encontrada");
+
+                // Si query esta vacio no se busca nada
+                if (string.IsNullOrWhiteSpace(query)) return Ok(new List<Product>());
+
+                query = query.ToLower();
+
+                var products = await _context.Products
+                    .Where(p => p.BranchId == branchId &&
+                          (p.Name.ToLower().Contains(query) || p.Code.ToLower().Contains(query)) && p.CategoryId != 1)
+                    .ToListAsync();
+
+                return Ok(products);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Error al intentar buscar el producto {ex}");
+            }
+        }
     }
 }

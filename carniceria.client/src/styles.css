@@ -1,3 +1,5 @@
+@charset "UTF-8";
+
 /* Tailwind CSS v4 imports */
 @import "tailwindcss";
 
@@ -6,6 +8,12 @@
 
 /* Angular CDK */
 @import "@angular/cdk/overlay-prebuilt.css";
+
+/* Material Theme */
+@import "@angular/material/prebuilt-themes/rose-red.css";
+
+/* Bootstrap */
+@import "bootstrap/dist/css/bootstrap.min.css";
 
 /* Animations */
 @keyframes fadeIn {

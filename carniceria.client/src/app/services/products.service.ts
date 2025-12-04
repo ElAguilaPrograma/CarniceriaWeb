@@ -56,4 +56,25 @@ export class ProductsService {
             })
         )
     }
+
+    searchMeats(branchId: number, searchTerm: string): Observable<IProduct[]> {
+        return this.http.get<IProduct[]>(`${this.apiUrlProducts}/searchmeat-by-branch/${branchId}/${encodeURIComponent(searchTerm)}`).pipe(
+            tap((res: IProduct[]) => {
+                console.log('Search meats result:', res);
+            })
+        )
+    }
+
+    searchAbarroteProducts(branchId: number, searchTerm: string): Observable<IProduct[]> {
+        return this.http.get<IProduct[]>(`${this.apiUrlProducts}/searchabarrote-by-branch/${branchId}/${encodeURIComponent(searchTerm)}`).pipe(
+            tap((res: IProduct[]) => {
+                console.log('Search abarrotes result:', res);
+            })
+        )
+    }
+
+    getMeatPrice(productId: number, branchId: number, weight: number): Observable<IProduct> {
+        return this.http.get<IProduct>(`/api/Sales/getprice-of-meat/${productId}/${branchId}/${weight}`);
+    }
+
 }

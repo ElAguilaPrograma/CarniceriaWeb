@@ -198,23 +198,32 @@ namespace Carniceria.Server.Controllers
             }
         }
 
-        [HttpPost("calculatemeatprice/{code}/{weight}")]
-        public async Task<IActionResult> CalculateMeatPrice(string code, decimal weight)
+        [HttpGet("getprice-of-meat/{productId}/{branchId}/{weight}")]
+        public async Task<IActionResult> GetPriceOfMeat(int productId, int branchId, decimal weight)
         {
             try
             {
-                if (string.IsNullOrWhiteSpace(code)) return BadRequest("El codigo no es valido");
-                var codeExistInDataBase = await _context.Products.FirstOrDefaultAsync(p => p.Code == code);
-                if (codeExistInDataBase == null) return NotFound("No se encontro el codigo");
+                var branchExist = await _context.Branches.AnyAsync(b => b.BranchId == branchId);
+                if (!branchExist)
+                {
+                    return NotFound("No se encontro la sucursal");
+                }
 
-                var meatPrice = _productsService.CalculetePriceMeat(codeExistInDataBase, weight);
+                var productExist = await _context.Products.AnyAsync(p => p.ProductId == productId && p.BranchId == branchId);
+                if (!productExist)
+                {
+                    return NotFound("No se encontro el producto");
+                }
 
-                return Ok(meatPrice);
+                var product = await _context.Products.FirstOrDefaultAsync(p => p.ProductId == productId && p.BranchId == branchId);
                 
+                var result = _productsService.CalculetePriceMeat(product, weight);
+
+                return Ok(result);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
-                return StatusCode(500, "No se pudo calcular el precio de la carne" + ex.Message);
+                return StatusCode(500, "No se pudo calcular el precio de la carne " + ex.Message);
             }
         }
 

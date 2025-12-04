@@ -1,0 +1,145 @@
+<div class="flex justify-center w-full p-0.5 flex-col">
+    <div class="flex justify-between p-1.5">
+        <h1>Carniceria</h1>
+    </div>
+    <div class="flex align-items-center w-full flex-col p-1">
+        <div class="relative w-full max-w-md">
+            <input type="search" 
+                placeholder="Buscar productos..." 
+                class="border border-gray-300 rounded px-2 py-2 w-75 my-4 placeholder:text-gray-400" 
+                (input)="onSearchMeats($event.target.value)"
+                (focus)="isSearching = true"
+                (blur)="isSearching = false"
+                />
+
+            <div class="absolute left-0 right-0 bg-gray-50 border rounded-2xl shadow mt-1 z-50 w-75 max-h-60 overflow-auto">
+                @if (isSearching && productsCarnage.length > 0) {
+                    <div>
+                        @for (product of productsCarnage; track product.productId){
+                            <div class="px-4 py-2 hover:bg-gray-200 cursor-pointer" (mousedown)="onSelectProduct(product)">
+                                <p>#{{ product.code }}   :   {{ product.name }}   :   ${{ product.price }}/kg</p>
+                            </div>
+                        }
+                    </div>
+                }            
+            </div>
+        </div>
+        <div class="w-full mb-2 mt-4">
+            <table class="w-full border border-gray-400 border-collapse text-center">
+                <title>Carniceria - Nueva Orden</title>
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="border border-gray-300 px-4 py-2">Nombre</th>
+                        <th class="border border-gray-300 px-4 py-2">Peso (kg)</th>
+                        <th class="border border-gray-300 px-4 py-2">Precio</th>
+                        <th class="border border-gray-300 px-4 py-2">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (productsSelected.length === 0) {
+                        <tr>
+                            <td class="border border-gray-300 px-4 py-2" colspan="4">No hay productos seleccionados.</td>
+                        </tr>
+                    }
+                    @else {
+                        @for (product of productsSelected; track product.productId; let i = $index) {
+                            <tr>
+                                <td class="border border-gray-300 px-4 py-2">{{ product.name }}</td>
+                                <td class="border border-gray-300 px-4 py-2">
+                                    @if (product.weight === undefined) {
+                                        <form (ngSubmit)="onWeightReceived(weightForm, i)" #weightForm="ngForm">
+                                            <div class="flex flex-col items-center">
+                                                <label class="text-sm text-gray-600 mb-1">Esperando peso...</label>
+                                                <input type="number" 
+                                                       name="weight"
+                                                       step="0.01"
+                                                       min="0.01"
+                                                       required 
+                                                       ngModel
+                                                       class="w-24 border border-gray-300 rounded px-2 py-1 text-center"
+                                                       placeholder="kg"
+                                                />
+                                            </div>
+                                            <button type="submit" class="hidden">Submit</button>
+                                        </form>
+                                    } @else {
+                                        <span>{{ product.weight }} kg</span>
+                                    }
+                                </td>
+                                <td class="border border-gray-300 px-4 py-2">
+                                    @if (product.isCalculating) {
+                                        <span>Calculando....</span>
+                                    } @else if (product.price !== undefined) {
+                                        <span>${{ product.price }}</span>
+                                    } @else {
+                                        <span>-</span>
+                                    }
+                                </td>
+                                <td class="border border-gray-300 px-4 py-2 w-1/4">
+                                    <app-button type="edit" class="mr-2">
+                                        <span>Editar</span>
+                                    </app-button>
+                                    <app-button type="delete">
+                                        <span>Eliminar</span>
+                                    </app-button>
+                                </td>
+                            </tr>
+                        }
+                        <tr>
+                            <td class="border border-gray-300 px-7 py-7 text-2xl font-semibold" colspan="4">Total: ${{ onCalculateTotal() }} MXN</td>
+                        </tr>   
+                    }
+                </tbody>
+            </table>
+        </div>
+        <div class="">
+            <app-button type="delete" class="mr-2" (click)="onCleanOrder()">
+                <span>Cancelar Orden</span>
+            </app-button>
+            <app-button type="new" (click)="onSendOrder() ; onCleanOrder()">
+                <span>Enviar Orden</span>
+            </app-button>
+        </div>
+    </div>
+</div>
+
+<div>
+    <small class="text-gray-400 p-2">Las ordenes se eliminan al ser terminadas en caja.</small>
+    @for (order of orders; track order.orderId) {
+        <div class="border border-gray-300 rounded p-4 mb-4">
+            <h2 class="text-lg font-semibold mb-2">Orden ID: {{ order.orderId }}</h2>
+            <table class="w-full border border-gray-400 border-collapse text-center">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="border border-gray-300 px-4 py-2">Nombre</th>
+                        <th class="border border-gray-300 px-4 py-2">Peso (kg)</th>
+                        <th class="border border-gray-300 px-4 py-2">Precio</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @for (product of order.products; track product.productId) {
+                        <tr>
+                            <td class="border border-gray-300 px-4 py-2">{{ product.name }}</td>
+                            <td class="border border-gray-300 px-4 py-2">
+                                @if (product.weight !== undefined) {
+                                    <span>{{ product.weight }} kg</span>
+                                } @else {
+                                    <span>-</span>
+                                }
+                            </td>
+                            <td class="border border-gray-300 px-4 py-2">
+                                @if (product.price !== undefined) {
+                                    <span>${{ product.price }}</span>
+                                } @else {
+                                    <span>-</span>
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>
+
+

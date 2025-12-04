@@ -10,16 +10,57 @@
     <tbody>
       <tr class="bg-gray-300">
         <td class="border border-blue-300 align-top p-4 w-3/4 h-130">
-          Lista de productos
+          <h3>Lista de productos</h3>
+          @for (product of sale; track product.productId){
+            <div class="mb-2">
+              <span>{{ product.name }} - ${{ product.price }} MXN</span>
+            </div>
+          }
+          @if (sale.length > 0) {
+            <div class="mt-4 pt-4 border-t border-blue-400">
+              <span class="font-semibold text-lg">Total: ${{ total }} MXN</span>
+            </div>
+          }
         </td>
         <td class="border border-blue-300 align-top p-4 w-1/4">
-          Lista de códigos
+          <h3>Lista de ordenes</h3>
+          @for (order of orders; track order.orderId) {
+            <div class="mb-2"> 
+              <app-button type="action" (click)="onGetOrderDetails(order.orderId)">
+                <span>Orden ID: {{ order.orderId }}</span> 
+              </app-button>
+            </div>
+          }
         </td>
       </tr>
 
       <tr class="bg-gray-200">
-        <td colspan="2" class="border border-blue-300 align-top p-4 h-32">
-          Historial de ventas recientes.
+        <td class="border border-blue-300 align-top p-4 h-32">
+          <h3>Busqueda de Productos</h3>
+          <div class="relative w-full max-w-md">
+            <input type="search"
+              placeholder="Buscar productos..."
+              (input)="onSearchAbarroteProducts($event.target.value)"
+              (focus)="isSearching = true"
+              (blur)="isSearching = false"
+              class="border border-gray-300 rounded px-2 py-2 w-75 my-4 placeholder:text-gray-400"
+            />
+
+            <div class="absolute left-0 right-0 bg-gray-50 border rounded-2xl shadow mt-1 z-50 w-75 max-h-60 overflow-auto">
+              @if (isSearching && productSearch.length > 0) {
+                <div>
+                  @for (product of productSearch; track product.productId){
+                    <div class="px-4 py-2 hover:bg-gray-200 cursor-pointer" (mousedown)="onSelectProduct(product)">
+                      <p>#{{ product.code }}   :   {{ product.name }}   :   ${{ product.price }}</p>
+                    </div>
+                  }
+                </div>
+              }
+            </div>
+          </div>
+        </td>
+        <td class="border border-blue-300 align-top p-4 h-32">
+          <h3>Ventas</h3>
         </td>
       </tr>
     </tbody>

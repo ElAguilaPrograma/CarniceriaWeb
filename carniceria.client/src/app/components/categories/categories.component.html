@@ -1,7 +1,7 @@
 <div class="p-2">
     <div class="flex justify-between p-1">
-        <h2 class="text-2xl font-semibold mb-4">Categorías</h2>
-        <app-button type="new" (click)="toggleOpenCreateCategoryModal()">
+        <p class="flex flex-col justify-center items-center text-6xl py-2">Categorías</p>
+        <app-button type="new" (click)="toggleOpenCreateCategoryModal()" class="m-4">
             <span class="">Nueva Categoria</span>
         </app-button>
     </div>
@@ -19,9 +19,20 @@
                     <tr>
                         <td class="border border-gray-300 px-4 py-2">{{ category.name }}</td>
                         <td class="border border-gray-300 px-4 py-2">
-                            <app-button type="delete" (click)="deleteCategory(category.categoryId!)">
-                                <span>Eliminar</span>
-                            </app-button>
+                            @if (category.branchId === null){
+                                <app-button type="disable" 
+                                            disabled="true" 
+                                            class="mr-2" 
+                                            matTooltip="No se puede eliminar una categoría global"
+                                            [matTooltipPosition]="'right'">
+                                    <span>Eliminar</span>
+                                </app-button>
+                            }
+                            @else {
+                                <app-button type="delete" (click)="deleteCategory(category.categoryId!)">
+                                    <span>Eliminar</span>
+                                </app-button>
+                            }
                         </td>
                     </tr>
                 }

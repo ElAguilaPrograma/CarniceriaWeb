@@ -23,7 +23,7 @@ namespace Carniceria.Server.Controllers
         public async Task<IActionResult> ShowCategoriesByBranch(int branchId)
         {
             var categories = await _context.Categories
-                .Where(c => c.BranchId == branchId)
+                .Where(c => c.BranchId == branchId || c.BranchId == null)
                 .ToListAsync();
 
             return Ok(categories);
