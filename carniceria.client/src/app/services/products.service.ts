@@ -77,4 +77,11 @@ export class ProductsService {
         return this.http.get<IProduct>(`/api/Sales/getprice-of-meat/${productId}/${branchId}/${weight}`);
     }
 
+    postUpdateProductStock(branchId: number, productId: number, newStock: number): Observable<IProduct> {
+        return this.http.post<IProduct>(`/api/Products/updatestock/${branchId}/${productId}/${newStock}`, {}).pipe(
+            tap((res: IProduct) => {
+                console.log('Product stock updated:', res);
+            })
+        );
+    }
 }

@@ -10,65 +10,162 @@
     <tbody>
       <tr class="bg-gray-300">
         <td class="border border-blue-300 align-top p-4 w-3/4 h-130">
-          <h3>Lista de productos</h3>
+          <h3 class="text-center mb-4">
+            Lista de productos @if (orderNumber) { - Orden Seleccionada:
+            {{ orderNumber }}
+            }
+          </h3>
           @for (product of sale; track product.productId){
-            <div class="mb-2">
-              <span>{{ product.name }} - ${{ product.price }} MXN</span>
-            </div>
-          }
-          @if (sale.length > 0) {
-            <div class="mt-4 pt-4 border-t border-blue-400">
-              <span class="font-semibold text-lg">Total: ${{ total }} MXN</span>
-            </div>
+          <div class="mb-2">
+            <span>
+              {{ product.name }} 
+              @if (product.quantity && product.quantity > 1) {
+                <strong class="text-blue-600">x{{ product.quantity }}</strong>
+              }
+              - ${{ (product.price || 0) * (product.quantity || 1) }} MXN 
+              <app-button
+                type="delete"
+                class="ml-4"
+                (click)="onRemoveProduct(sale.indexOf(product))">
+                <span>
+                  -
+                </span>
+              </app-button>
+              <app-button
+                type="new"
+                class="ml-2"
+                (click)="onAddSameProduct(product)">
+                <span>
+                  +
+                </span>
+              </app-button>
+            </span>
+          </div>
+          } @if (sale.length > 0) {
+          <div class="mt-4 pt-4 border-t border-blue-400">
+            <span class="font-semibold text-lg">Total: ${{ total }} MXN</span>
+          </div>
           }
         </td>
         <td class="border border-blue-300 align-top p-4 w-1/4">
-          <h3>Lista de ordenes</h3>
+          <h3 class="text-center">Lista de ordenes</h3>
           @for (order of orders; track order.orderId) {
-            <div class="mb-2"> 
-              <app-button type="action" (click)="onGetOrderDetails(order.orderId)">
-                <span>Orden ID: {{ order.orderId }}</span> 
-              </app-button>
-            </div>
+          <div class="mb-2 mt-2 flex flex-col items-center">
+            <app-button
+              type="action"
+              (click)="
+                onGetOrderDetails(order.orderId); onSelectOrder(order.orderId)
+              "
+            >
+              <span>Orden ID: {{ order.orderId }}</span>
+            </app-button>
+          </div>
           }
         </td>
       </tr>
 
       <tr class="bg-gray-200">
-        <td class="border border-blue-300 align-top p-4 h-32">
-          <h3>Busqueda de Productos</h3>
-          <div class="relative w-full max-w-md">
-            <input type="search"
-              placeholder="Buscar productos..."
-              (input)="onSearchAbarroteProducts($event.target.value)"
-              (focus)="isSearching = true"
-              (blur)="isSearching = false"
-              class="border border-gray-300 rounded px-2 py-2 w-75 my-4 placeholder:text-gray-400"
-            />
-
-            <div class="absolute left-0 right-0 bg-gray-50 border rounded-2xl shadow mt-1 z-50 w-75 max-h-60 overflow-auto">
-              @if (isSearching && productSearch.length > 0) {
+        <td class="border border-blue-300 align-top p-4">
+          <h3 class="text-center">Busqueda de Productos</h3>
+          <div class="relative w-full flex justify-center">
+            <div class="relative w-full max-w-md">
+              <div
+                class="absolute left-0 right-0 bg-gray-50 border rounded-2xl shadow bottom-full mb-1 z-50 max-h-60 overflow-auto"
+              >
+                @if (isSearching && productSearch.length > 0) {
                 <div>
                   @for (product of productSearch; track product.productId){
-                    <div class="px-4 py-2 hover:bg-gray-200 cursor-pointer" (mousedown)="onSelectProduct(product)">
-                      <p>#{{ product.code }}   :   {{ product.name }}   :   ${{ product.price }}</p>
-                    </div>
+                  <div
+                    class="px-4 py-2 hover:bg-gray-200 cursor-pointer"
+                    (mousedown)="onSelectProduct(product)"
+                  >
+                    <p>
+                      #{{ product.code }} : {{ product.name }} : ${{
+                        product.price
+                      }}
+                    </p>
+                  </div>
                   }
                 </div>
-              }
+                }
+              </div>
+              
+              <input
+                type="search"
+                placeholder="Buscar productos..."
+                (input)="onSearchAbarroteProducts($event.target.value)"
+                (focus)="isSearching = true"
+                (blur)="isSearching = false"
+                class="border border-black rounded px-2 py-2 w-full my-4 placeholder:text-white bg-gray-400 text-white"
+              />
             </div>
           </div>
         </td>
-        <td class="border border-blue-300 align-top p-4 h-32">
+        <td class="border border-blue-300 align-top p-4 flex flex-col justify-center items-center">
           <h3>Ventas</h3>
+          <app-button type="new" class="mb-2" (click)="openModalSale = true">
+            <span>Realizar Venta</span>
+          </app-button>
+          <app-button type="action" (click)="sale = []; total = 0; orderNumber = '';">
+            <span>Limpiar Venta</span>
+          </app-button>
         </td>
       </tr>
     </tbody>
   </table>
-
-  <div class="flex justify-center">
-    <button mat-raised-button routerLink="/main" routerLinkActive="active">
-        Volver al inicio
-    </button>
-  </div>
 </div>
+
+<!-- Modal Sale Component -->
+<app-modal-window
+  [openModal]="openModalSale"
+  title="Confirmación de Venta"
+  size="medium"
+>
+  <div>
+    <p>¿Está seguro de que desea confirmar la venta?</p>
+    <h2>Total a pagar: ${{ total }} MXN</h2>
+
+    <form (ngSubmit)="onConfirmSale(saleForm)" #saleForm="ngForm">
+      <div>
+        <label for="amountReceived" class="block font-medium mb-2"
+          >Cantidad Recibida:</label
+        >
+        <input
+          type="number"
+          name="amountReceived"
+          [(ngModel)]="amountReceived"
+          required
+          placeholder="500.00..."
+          class="border border-black rounded px-2 py-2 w-full mb-4 mt-2 placeholder:text-gray-400"
+        />
+      </div>
+      <div class="flex justify-end">
+        <app-button type="delete" class="mr-2" (click)="openModalSale = false">
+          <span>Cancelar</span>
+        </app-button>
+        <button type="submit" class="hidden"></button>
+        <app-button type="new" (click)="saleForm.ngSubmit.emit()">
+          <span>Confirmar Venta</span>
+        </app-button>
+      </div>
+    </form>
+  </div>
+</app-modal-window>
+
+<!-- Modal Sale Confirmation Component -->
+<app-modal-window
+  [openModal]="openModalSaleConfirmation"
+  title="Venta Confirmada"
+  size="medium"
+>
+  <div>
+    <p class="text-center">La venta ha sido confirmada exitosamente.</p>
+    <h2 class="text-center">Cambio a devolver: </h2>
+    <h2 class="text-center text-2xl font-bold">${{ change }} MXN</h2>
+    <div class="flex justify-center">
+      <app-button type="new" (click)="openModalSaleConfirmation = false">
+        <span>Cerrar</span>
+      </app-button>
+    </div>
+  </div>
+</app-modal-window>

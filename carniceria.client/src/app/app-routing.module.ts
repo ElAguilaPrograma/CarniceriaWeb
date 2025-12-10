@@ -11,6 +11,7 @@ import { BranchesComponent } from './components/branches/branches.component';
 import { ProductsComponent } from './components/products/products.component';
 import { CategoriesComponent } from './components/categories/categories.component';
 import { CarnageComponent } from './components/carnage/carnage.component';
+import { CanDeactivateGuard } from './services/can-deactivate.guard';
 
 const routes: Routes = [
   { path: "", redirectTo: "main", pathMatch: "full" }, //Ruta por defecto
@@ -24,11 +25,11 @@ const routes: Routes = [
     children: [
       { path: "main", component: MainComponent }, //sin guardia
       { path: "settings", component: SettingsComponent, canActivate: [AuthGuard]},
-      { path: "home", component: HomeComponent, canActivate: [AuthGuard]},
+      { path: "home", component: HomeComponent, canActivate: [AuthGuard], canDeactivate: [CanDeactivateGuard]},
       { path: "branches", component: BranchesComponent, canActivate: [AuthGuard]},
       { path: "products", component: ProductsComponent, canActivate: [AuthGuard]},
       { path: "categories", component: CategoriesComponent, canActivate: [AuthGuard]},
-      { path: "carnage", component: CarnageComponent, canActivate: [AuthGuard]},
+      { path: "carnage", component: CarnageComponent, canActivate: [AuthGuard], canDeactivate: [CanDeactivateGuard]},
       { path: "settings", component: SettingsComponent, canActivate: [AuthGuard]},
     ]
   }

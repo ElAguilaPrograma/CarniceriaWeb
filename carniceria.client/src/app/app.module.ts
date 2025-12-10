@@ -31,6 +31,7 @@ import { ButtonComponent } from './shared/button/button.component';
 import { ModalWindowComponent } from './shared/modal-window/modal-window.component';
 import { CategoriesComponent } from './components/categories/categories.component';
 import { CarnageComponent } from './components/carnage/carnage.component';
+import { A11yModule } from "@angular/cdk/a11y";
 
 @NgModule({
   declarations: [
@@ -64,7 +65,8 @@ import { CarnageComponent } from './components/carnage/carnage.component';
     HlmCardHeader,
     HlmCardFooter,
     MatDialogClose,
-    MatDialogTitle
+    MatDialogTitle,
+    A11yModule
 ],
   providers: [
     provideZoneChangeDetection({eventCoalescing: true}),

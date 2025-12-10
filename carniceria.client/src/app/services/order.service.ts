@@ -63,6 +63,12 @@ export class OrderService {
         localStorage.removeItem('productSelected');
     }
 
+    clearOrderById(orderId: string): void {
+        const orders = this.getAllOrdersFromStorage();
+        const updatedOrders = orders.filter(order => order.orderId !== orderId);
+        this.saveOrdersToStorage(updatedOrders);
+    }
+
     clearAllOrders(): void {
         localStorage.removeItem(this.ORDERS_KEY);
         localStorage.removeItem(this.LAST_ORDER_ID_KEY);

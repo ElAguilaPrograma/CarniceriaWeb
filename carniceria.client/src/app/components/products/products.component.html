@@ -19,7 +19,7 @@
                 <th class="border border-gray-300 px-4 py-2">Nombre</th>
                 <th class="border border-gray-300 px-4 py-2">Precio</th>
                 <th class="border border-gray-300 px-4 py-2">Categoría</th>
-                <th class="border border-gray-300 px-4 py-2">Stock</th>
+                <th class="border border-gray-300 px-4 py-2" [ngClass]="{ 'bg-gray-600': !stockValidation}">Stock</th>
                 <th class="border border-gray-300 px-4 py-2">Registrado</th>
                 <th class="border border-gray-300 px-4 py-2">Activo</th>
                 <th class="border border-gray-300 px-4 py-2">Acciones</th>
@@ -32,8 +32,14 @@
                     <td class="border border-gray-300 px-4 py-2">{{ product.code }}</td>
                     <td class="border border-gray-300 px-4 py-2">{{ product.name }}</td>
                     <td class="border border-gray-300 px-4 py-2">{{ product.price | currency:'MXN' }}</td>
-                    <td class="border border-gray-300 px-4 py-2">{{ product.categoryId }}</td>
-                    <td class="border border-gray-300 px-4 py-2">{{ product.stock }}</td>
+                    <td class="border border-gray-300 px-4 py-2">
+                        @for (category of categories; track category.categoryId) {
+                            @if (category.categoryId === product.categoryId){
+                                {{ category.name }}
+                            }
+                        }
+                    </td>
+                    <td class="border border-gray-300 px-4 py-2" [ngClass]="{ 'bg-gray-400': !stockValidation}">{{ product.stock }}</td>
                     <td class="border border-gray-300 px-4 py-2">{{ product.registrationDate | date:'short' }}</td>
                     <td class="border border-gray-300 px-4 py-2"> 
                         @if (product.active){
@@ -55,6 +61,10 @@
             }
         </tbody>
     </table>
+    <p class="text-end mt-3">
+        <a routerLink="/settings" routerLinkActive="active"><span>Ír</span></a>
+        - Validación por stock: {{ stockValidation ? 'Activada' : 'Desactivada' }}
+    </p>
 </div>
 
 <app-modal-window [openModal]="openSelectTypeProductModal" title="Seleccionar Tipo de Producto" size="small">
@@ -122,6 +132,7 @@
                     name="unitId" 
                     required
                     [(ngModel)]="productsData.unitId"
+                    (ngModelChange)="updateUnitLabel($event)"
                     class="border border-gray-300 rounded px-2 py-1 w-full placeholder: text-gray-400">
                     @for (unit of units; track unit.unitId) {
                         <option [ngValue]="unit.unitId">{{ unit.name }}</option>
@@ -141,14 +152,22 @@
             </div>
             <div>
                 <label class="">
-                Stock:
+                Stock: 
+                @if (!stockValidation) { 
+                    Validación por stock desactivada 
+                }
+                @else {
+                    basado en {{unitValueSelected}}
+                }
                 </label>
                 <input type="number" 
                    name="stock" 
                    placeholder="50"
                    required
                    [(ngModel)]="productsData.stock"
+                   [disabled]="!stockValidation"
                    class="border border-gray-300 rounded px-2 py-1 w-full placeholder: text-gray-400" 
+                   [ngClass]="{'bg-gray-200 cursor-not-allowed': !stockValidation}"
                 />
             </div>
             <div>
@@ -166,7 +185,7 @@
             </div>
 
             <div class="flex gap-3 justify-end">
-                <app-button type="delete" (click)="openCreateProductModal = false">Cancelar</app-button>
+                <app-button type="delete" (click)="openCreateProductModal = false ; unitValueSelected = ''">Cancelar</app-button>
                 <app-button type="submit">Guardar</app-button>
             </div>
         </div>
@@ -226,6 +245,7 @@
                     name="unitId" 
                     required
                     [(ngModel)]="productsData.unitId"
+                    (ngModelChange)="updateUnitLabel($event)"
                     class="border border-gray-300 rounded px-2 py-1 w-full placeholder: text-gray-400">
                     @for (unit of units; track unit.unitId) {
                         <option [ngValue]="unit.unitId">{{ unit.name }}</option>
@@ -235,13 +255,21 @@
             <div>
                 <label class="">
                 Stock:
+                @if (!stockValidation) { 
+                    Validación por stock desactivada 
+                }
+                @else if (unitValueSelected) {
+                    basado en {{unitValueSelected}}
+                }
                 </label>
                 <input type="number" 
                    name="stock" 
                    placeholder="50"
                    required
                    [(ngModel)]="productsData.stock"
+                   [disabled]="!stockValidation"
                    class="border border-gray-300 rounded px-2 py-1 w-full placeholder: text-gray-400" 
+                   [ngClass]="{'bg-gray-200 cursor-not-allowed': !stockValidation}"
                 />
             </div>
             <div>
@@ -261,7 +289,7 @@
             <p class="text-left text-sm text-gray-400 font-serif">El codigo se generara automaticamente</p>
 
             <div class="flex gap-3 justify-end">
-                <app-button type="delete" (click)="openCreateProductModal = false">Cancelar</app-button>
+                <app-button type="delete" (click)="openCreateProductModal = false; unitValueSelected = ''">Cancelar</app-button>
                 <app-button type="submit">Guardar</app-button>
             </div>
         </div>
@@ -323,6 +351,7 @@
                         name="unitId" 
                         required
                         [(ngModel)]="selectedProduct.unitId"
+                        (ngModelChange)="updateUnitLabel($event)"
                         class="border border-gray-300 rounded px-2 py-1 w-full placeholder: text-gray-400">
                         @for (unit of units; track unit.unitId) {
                             <option [ngValue]="unit.unitId">{{ unit.name }}</option>
@@ -344,13 +373,21 @@
                 <div>
                     <label class="">
                     Stock:
+                    @if (!stockValidation) { 
+                        Validación por stock desactivada 
+                    }
+                    @else if (unitValueSelected) {
+                        basado en {{unitValueSelected}}
+                    }
                     </label>
                     <input type="number" 
                     name="stock" 
                     placeholder="50"
                     required
                     [(ngModel)]="selectedProduct.stock"
+                    [disabled]="!stockValidation"
                     class="border border-gray-300 rounded px-2 py-1 w-full placeholder: text-gray-400" 
+                    [ngClass]="{'bg-gray-200 cursor-not-allowed': !stockValidation}"
                     />
                 </div>
                 <div>
@@ -368,7 +405,7 @@
                 </div>
 
                 <div class="flex gap-3 justify-end">
-                    <app-button type="delete" (click)="openUpdateProductModal = false">Cancelar</app-button>
+                    <app-button type="delete" (click)="openUpdateProductModal = false ; unitValueSelected = ''">Cancelar</app-button>
                     <app-button type="submit">Guardar</app-button>
                 </div>
             </div>

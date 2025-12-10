@@ -218,7 +218,7 @@ namespace Carniceria.Server.Controllers
 
                 var products = await _context.Products
                     .Where(p => p.BranchId == branchId &&
-                          (p.Name.ToLower().Contains(query) || p.Code.ToLower().Contains(query)) && p.CategoryId == 1)
+                          (p.Name.ToLower().Contains(query) || p.Code.ToLower().Contains(query)) && p.CategoryId == 1 && p.Active == true)
                     .ToListAsync();
 
                 return Ok(products);
@@ -244,7 +244,7 @@ namespace Carniceria.Server.Controllers
 
                 var products = await _context.Products
                     .Where(p => p.BranchId == branchId &&
-                          (p.Name.ToLower().Contains(query) || p.Code.ToLower().Contains(query)) && p.CategoryId != 1)
+                          (p.Name.ToLower().Contains(query) || p.Code.ToLower().Contains(query)) && p.CategoryId != 1 && p.Active == true)
                     .ToListAsync();
 
                 return Ok(products);
@@ -252,6 +252,34 @@ namespace Carniceria.Server.Controllers
             catch (Exception ex)
             {
                 return StatusCode(500, $"Error al intentar buscar el producto {ex}");
+            }
+        }
+
+        [HttpPost("updatestock/{branchId}/{productId}/{newStock}")]
+        public async Task<IActionResult> UpdateStock(int branchId, int productId, decimal newStock)
+        {
+            try
+            {
+                var branchExist = await _context.Branches.AnyAsync(b => b.BranchId == branchId);
+                if (!branchExist) return NotFound("No se encontro la sucursal");
+
+                var product = await _context.Products.FirstOrDefaultAsync(p => p.ProductId == productId);
+
+                if (product == null)
+                {
+                    return NotFound("Producto no encontrado");
+                }
+
+                product.Stock = newStock;
+
+                _context.Update(product);
+                await _context.SaveChangesAsync();
+
+                return Ok("Stock actualizado con exito");
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"No se pudo actualizar correctamente el stock del producto, error: {ex.Message}");
             }
         }
     }

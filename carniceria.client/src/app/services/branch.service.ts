@@ -68,4 +68,8 @@ export class BranchService {
     resetBranchName(): void {
       this.branchNameSubject.next('Bienvenido');
     }
+
+    deleteSeletedBranchFromLocalStorage(): void {
+      localStorage.removeItem('selectedBranch');
+    }
 }

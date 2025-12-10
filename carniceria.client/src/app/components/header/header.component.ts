@@ -4,6 +4,7 @@ import { filter, takeLast } from 'rxjs';
 import { AuthGuard } from '../../services/auth.guard';
 import { NavigationEnd, Route, Router } from '@angular/router';
 import { BranchService } from '../../services/branch.service';
+import { OrderService } from '../../services/order.service';
 
 @Component({
   selector: 'app-header',
@@ -15,10 +16,12 @@ export class HeaderComponent implements OnInit{
   loginStatus: boolean = false;
   hideCollapseSidebarIcon: boolean = true;
   nameBranch: string = "Bienvenido";
+  openConfirmModalLogout: boolean = false;
 
   constructor(private authService: AuthService,
               private router: Router,
-              private branchService: BranchService
+              private branchService: BranchService,
+              private orderService: OrderService
   ) { }
 
   @Output() toggleSidebar = new EventEmitter<void>();
@@ -55,6 +58,8 @@ export class HeaderComponent implements OnInit{
 
   logOut(): void {
     const leaving = this.authService.logout();
+    this.orderService.clearAllOrders();
+    this.branchService.deleteSeletedBranchFromLocalStorage();
     window.location.reload();
   }
 

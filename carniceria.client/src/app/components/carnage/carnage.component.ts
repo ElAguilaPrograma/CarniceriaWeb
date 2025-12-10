@@ -4,6 +4,9 @@ import { ProductsService } from '../../services/products.service';
 import { NgForm } from '@angular/forms';
 import { OrderService } from '../../services/order.service';
 import { IOrder } from '../../models/order.model';
+import { CanDeactivate } from '@angular/router';
+import { CanComponentDeactivate } from '../../services/can-deactivate.guard';
+import { SettingsService } from '../../services/settings.service';
 
 @Component({
   selector: 'app-carnage.component',
@@ -11,18 +14,30 @@ import { IOrder } from '../../models/order.model';
   templateUrl: './carnage.component.html',
   styleUrl: './carnage.component.css',
 })
-export class CarnageComponent implements OnInit {
+export class CarnageComponent implements OnInit, CanComponentDeactivate {
   productsCarnage: IProduct[] = [];
   orders: IOrder[] = [];
   productsSelected: Array<IProduct & { weight?: number; isCalculating?: boolean }> = [];
   showNewOrderTable: boolean = false;
   isSearching: boolean = false;
   errorMessage: string = '';
+  stockValidation: boolean = false;
 
-  constructor(private productsService: ProductsService, private orderService: OrderService) { }
+  constructor(private productsService: ProductsService, private orderService: OrderService, private settingsService: SettingsService) { }
 
   ngOnInit(): void {
     this.loadOrders();
+    
+    this.settingsService.stockValidation$.subscribe(validation => {
+      this.stockValidation = validation;
+    });
+  }
+
+  canDeactivate(): boolean {
+    if (this.productsSelected.length > 0) {
+      return confirm('Tienes una orden en proceso. ¿Estás seguro de que deseas salir y perder los datos ingresados?');
+    }
+    return true;
   }
 
   onSearchMeats(term: string): void {
@@ -69,6 +84,13 @@ export class CarnageComponent implements OnInit {
       
       this.productsService.getMeatPrice(product.productId!, branchId, weight).subscribe({
         next: (data) => {
+          if (this.stockValidation && weight > product.stock!) {
+            this.errorMessage = `El peso ingresado (${weight} kg) excede el stock disponible (${product.stock} kg). Por favor ingresa un peso válido.`;
+            alert(this.errorMessage);
+            product.isCalculating = false;
+            this.productsSelected.splice(index, 1);
+            return;
+          }
           this.productsSelected[index].price = data.price;
           this.productsSelected[index].isCalculating = false;
           console.log('Price updated for product:', this.productsSelected[index]);
@@ -97,7 +119,27 @@ export class CarnageComponent implements OnInit {
   }
 
   onSendOrder(): void {
+    const branchId = JSON.parse(localStorage.getItem('selectedBranch') || '{}').branchId;
     const totalAmount = this.onCalculateTotal();
+    
+    // Actualizar el stock de cada producto solo si la validación está activada
+    if (this.stockValidation) {
+      this.productsSelected.forEach(product => {
+        if (product.weight && product.productId && product.stock !== undefined) {
+          const newStock = product.stock - product.weight;
+          this.productsService.postUpdateProductStock(branchId, product.productId, newStock).subscribe({
+            next: (updatedProduct) => {
+              console.log('Product stock updated after sending order:', updatedProduct);
+            },
+            error: (err) => {
+              console.error('Error updating product stock after sending order:', err);
+              this.errorMessage = `Error al actualizar el stock del producto ${product.name}`;
+            }
+          });
+        }
+      });
+    }
+
     const orderId = this.orderService.saveOrder(this.productsSelected, totalAmount);
     console.log(`Orden guardada: ${orderId}`);
     this.loadOrders(); 

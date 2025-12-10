@@ -28,7 +28,7 @@
             <button
               class="flex items-center gap-2 hover:bg-gray-300
                      text-black px-4 py-2 transition"
-              (click)="logOut()"
+              (click)="openConfirmModalLogout = true"
             >
               <span>Salir de la cuenta</span>
               <i class="bi bi-box-arrow-in-left text-black"></i>
@@ -55,3 +55,18 @@
         }
     </div>
 </header>
+
+<!-- Confirm Logout Modal -->
+ <app-modal-window [openModal]="openConfirmModalLogout" title="Confirmar Cierre de Sesión" size="medium">
+    <p>¿Estás seguro de que deseas cerrar sesión?</p>
+    <small class="text-gray-400">Se perderán todas las ordenes no terminadas.</small>
+    <div class="flex justify-end space-x-4 mt-4">
+        <app-button type="action" (click)="openConfirmModalLogout = false">
+            <span>Cancelar</span>
+        </app-button>
+        <app-button type="delete" (click)="logOut()">
+            <span>Cerrar Sesión</span>
+        </app-button>
+    </div>
+    
+ </app-modal-window>

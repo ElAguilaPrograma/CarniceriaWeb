@@ -8,6 +8,7 @@ import { CategoriesService } from '../../services/categories.service';
 import { IUnit } from '../../models/unit.model';
 import { UnitsService } from '../../services/units.service';
 import { GenerateCodeService } from '../../services/generateCode.service';
+import { SettingsService } from '../../services/settings.service';
 
 @Component({
   selector: 'app-products',
@@ -31,6 +32,7 @@ export class ProductsComponent implements OnInit {
   openUpdateProductModal: boolean = false;
   openDeleteProductModal: boolean = false;
   openSelectTypeProductModal: boolean = false;
+  stockValidation: boolean = false;
   isGrocery: boolean = true;
   categoriesData: ICategory = {
     name: ""
@@ -40,17 +42,25 @@ export class ProductsComponent implements OnInit {
     abbreviation: ""
   };
 
+  unitValueSelected: string = '';
+
   constructor(
     private productsService: ProductsService,
     private categoriesService: CategoriesService,
     private unitsService: UnitsService,
-    private generateCodeService: GenerateCodeService
+    private generateCodeService: GenerateCodeService,
+    private settingsService: SettingsService
   ) { }
 
   ngOnInit(): void {
     this.loadProducts();
     this.loadCategories();
     this.loadUnits();
+
+    this.settingsService.stockValidation$.subscribe(validation => {
+      this.stockValidation = validation;
+    });
+
   }
 
   loadProducts(): void {
@@ -234,6 +244,7 @@ export class ProductsComponent implements OnInit {
 
   currentProduct(product: IProduct): void {
     this.selectedProduct = product;
+    this.updateUnitLabel(product.unitId);
   }
 
   generateCode(): void {
@@ -248,6 +259,15 @@ export class ProductsComponent implements OnInit {
         console.error('Error generating product code:', err);
       }
     })
+  }
+
+  updateUnitLabel(unitId: number | undefined): void {
+    if (unitId) {
+      const unit = this.units.find(u => u.unitId === unitId);
+      this.unitValueSelected = unit ? unit.name : '';
+    } else {
+      this.unitValueSelected = '';
+    }
   }
 
 }

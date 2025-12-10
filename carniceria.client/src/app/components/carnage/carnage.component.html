@@ -76,10 +76,7 @@
                                     }
                                 </td>
                                 <td class="border border-gray-300 px-4 py-2 w-1/4">
-                                    <app-button type="edit" class="mr-2">
-                                        <span>Editar</span>
-                                    </app-button>
-                                    <app-button type="delete">
+                                    <app-button type="delete" (click)="productsSelected.splice(productsSelected.indexOf(product), 1); onCalculateTotal()">
                                         <span>Eliminar</span>
                                     </app-button>
                                 </td>
