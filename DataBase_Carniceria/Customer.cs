@@ -16,6 +16,4 @@ public partial class Customer
     public string? Address { get; set; }
 
     public virtual Branch Branch { get; set; } = null!;
-
-    public virtual ICollection<Sale> Sales { get; set; } = new List<Sale>();
 }

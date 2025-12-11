@@ -9,16 +9,13 @@ public partial class Sale
 
     public int BranchId { get; set; }
 
-    public int CustomerId { get; set; }
-
     public DateTime Date { get; set; }
 
-    public decimal Total { get; set; }
-    public virtual Product? Product { get; set; }
+    public int UserId { get; set; }
+
+    public bool IsComplete { get; set; }
 
     public virtual Branch Branch { get; set; } = null!;
 
-    public virtual Customer Customer { get; set; } = null!;
-
-    public virtual ICollection<SalesDetail> SalesDetails { get; set; } = new List<SalesDetail>();
+    public virtual ICollection<SaleDetail> SaleDetails { get; set; } = new List<SaleDetail>();
 }

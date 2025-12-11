@@ -11,41 +11,61 @@
       <tr class="bg-gray-300">
         <td class="border border-blue-300 align-top p-4 w-3/4 h-130">
           <h3 class="text-center mb-4">
-            Lista de productos @if (orderNumber) { - Orden Seleccionada:
-            {{ orderNumber }}
-            }
+            Lista de productos
           </h3>
           @for (product of sale; track product.productId){
-          <div class="mb-2">
-            <span>
-              {{ product.name }} 
-              @if (product.quantity && product.quantity > 1) {
-                <strong class="text-blue-600">x{{ product.quantity }}</strong>
-              }
-              - ${{ (product.price || 0) * (product.quantity || 1) }} MXN 
-              <app-button
-                type="delete"
-                class="ml-4"
-                (click)="onRemoveProduct(sale.indexOf(product))">
-                <span>
-                  -
-                </span>
-              </app-button>
-              <app-button
-                type="new"
-                class="ml-2"
-                (click)="onAddSameProduct(product)">
-                <span>
-                  +
-                </span>
-              </app-button>
-            </span>
+            <div class="mb-2">
+              <span>
+                {{ product.name }} 
+                @if (product.quantity && product.quantity > 1) {
+                  <strong class="text-blue-600">x{{ product.quantity }}</strong>
+                }
+                - ${{ (product.price || 0) * (product.quantity || 1) }} MXN 
+                <app-button
+                  type="delete"
+                  class="ml-4"
+                  (click)="onRemoveProduct(sale.indexOf(product))">
+                  <span>
+                    -
+                  </span>
+                </app-button>
+                <app-button
+                  type="new"
+                  class="ml-2"
+                  (click)="onAddSameProduct(product)">
+                  <span>
+                    +
+                  </span>
+                </app-button>
+              </span>
+            </div>
+            } 
+            @if (sale.length > 0) {
+              <div class="mt-4 pt-4 border-t border-blue-400">
+                <span class="font-semibold text-lg">Total: ${{ total }} MXN</span>
+              </div>
+            }
+        @if (orderSelected != null){
+          <div class="">
+            <h3 class="mt-4">{{ orderSelected.name }}</h3>
+            <div class="mt-2">
+              <p>Productos</p>
+              <span>
+                @for (detail of orderSelected.details; track detail.orderDetailId){
+                  <div>
+                    {{ detail.productName }} : ${{ detail.unitPrice }} x {{ detail.weightOrQuantity }} kg = ${{ detail.subtotal }}
+                  </div>
+                }
+              </span>
+              <div class="mt-2 font-semibold">
+                Total: ${{ orderSelected.total }} MXN
+              </div>
+            </div>
           </div>
-          } @if (sale.length > 0) {
-          <div class="mt-4 pt-4 border-t border-blue-400">
-            <span class="font-semibold text-lg">Total: ${{ total }} MXN</span>
-          </div>
-          }
+        }
+        <div class="">
+          <h2>Total: ${{ total }} MXN</h2>
+        </div>
         </td>
         <td class="border border-blue-300 align-top p-4 w-1/4">
           <h3 class="text-center">Lista de ordenes</h3>
@@ -53,11 +73,9 @@
           <div class="mb-2 mt-2 flex flex-col items-center">
             <app-button
               type="action"
-              (click)="
-                onGetOrderDetails(order.orderId); onSelectOrder(order.orderId)
-              "
+              (click)="onGetOrderDetails(order.orderId)"
             >
-              <span>Orden ID: {{ order.orderId }}</span>
+              <span>{{ order.name }}</span>
             </app-button>
           </div>
           }
@@ -106,7 +124,7 @@
           <app-button type="new" class="mb-2" (click)="openModalSale = true">
             <span>Realizar Venta</span>
           </app-button>
-          <app-button type="action" (click)="sale = []; total = 0; orderNumber = '';">
+          <app-button type="action" (click)="sale = []; orderSelected = null; calculateTotal(); orderNumber = '';">
             <span>Limpiar Venta</span>
           </app-button>
         </td>

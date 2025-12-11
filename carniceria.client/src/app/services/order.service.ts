@@ -1,76 +1,32 @@
 import { Injectable } from "@angular/core";
 import { IProduct } from "../models/products.model";
-import { IOrder } from "../models/order.model";
+import { CreateOrderRequest, Order } from "../models/order.model";
+import { HttpClient } from "@angular/common/http";
+import { enviroment } from "../../environments/enviroment";
+import { Observable } from "rxjs";
 
 @Injectable({
     providedIn: "root"
 })
 export class OrderService {
-    private readonly ORDERS_KEY = 'orders';
-    private readonly LAST_ORDER_ID_KEY = 'lastOrderId';
+    private readonly API_URL = `${enviroment.apiUrl}/Orders`;
 
-    constructor() {}
+    constructor(private http: HttpClient) {}
 
-    private generateOrderId(): string {
-        const lastId = localStorage.getItem(this.LAST_ORDER_ID_KEY);
-        let nextId = lastId ? parseInt(lastId, 10) + 1 : 10000;
-        
-        // Asegurar que siempre sea de 5 dígitos
-        if (nextId > 99999) {
-            nextId = 10000;
-        }
-        
-        localStorage.setItem(this.LAST_ORDER_ID_KEY, nextId.toString());
-        return nextId.toString().padStart(5, '0');
+    createOrder(request: CreateOrderRequest): Observable<CreateOrderRequest> {
+        return this.http.post<CreateOrderRequest>(`${this.API_URL}/createorder/${request.branchId}`, request);
     }
 
-    private getAllOrdersFromStorage(): IOrder[] {
-        const ordersJson = localStorage.getItem(this.ORDERS_KEY);
-        return ordersJson ? JSON.parse(ordersJson) : [];
+    getOrdersWithDetails(branchId: number): Observable<Order[]> {
+        return this.http.get<Order[]>(`${this.API_URL}/get-orders-with-details/${branchId}`);
     }
 
-    private saveOrdersToStorage(orders: IOrder[]): void {
-        localStorage.setItem(this.ORDERS_KEY, JSON.stringify(orders));
+    getOrderTotal(orderId: number): Observable<any> {
+        return this.http.get<any>(`${this.API_URL}/get-order-total/${orderId}`);
     }
 
-    saveOrder(products: Array<IProduct & { weight?: number; isCalculating?: boolean }>, total: number): string {
-        const orderId = this.generateOrderId();
-        const orders = this.getAllOrdersFromStorage();
-        
-        const newOrder: IOrder = {
-            orderId,
-            products,
-            createdAt: new Date(),
-            total
-        };
-        
-        orders.push(newOrder);
-        this.saveOrdersToStorage(orders);
-        
-        return orderId;
+    completeOrder(orderId: number): Observable<{ message: string; orderId: number }> {
+        return this.http.put<{ message: string; orderId: number }>(`${this.API_URL}/complete-order/${orderId}`, {});
     }
 
-    getAllOrders(): IOrder[] {
-        return this.getAllOrdersFromStorage();
-    }
-
-    getOrderById(orderId: string): IOrder | undefined {
-        const orders = this.getAllOrdersFromStorage();
-        return orders.find(order => order.orderId === orderId);
-    }
-
-    clearOrder(): void {
-        localStorage.removeItem('productSelected');
-    }
-
-    clearOrderById(orderId: string): void {
-        const orders = this.getAllOrdersFromStorage();
-        const updatedOrders = orders.filter(order => order.orderId !== orderId);
-        this.saveOrdersToStorage(updatedOrders);
-    }
-
-    clearAllOrders(): void {
-        localStorage.removeItem(this.ORDERS_KEY);
-        localStorage.removeItem(this.LAST_ORDER_ID_KEY);
-    }
 }

@@ -23,18 +23,22 @@ public partial class CarniceriaContext : DbContext
 
     public virtual DbSet<MeasurementUnit> MeasurementUnits { get; set; }
 
+    public virtual DbSet<Order> Orders { get; set; }
+
+    public virtual DbSet<OrderDetail> OrderDetails { get; set; }
+
     public virtual DbSet<Product> Products { get; set; }
 
     public virtual DbSet<Sale> Sales { get; set; }
 
-    public virtual DbSet<SalesDetail> SalesDetails { get; set; }
+    public virtual DbSet<SaleDetail> SaleDetails { get; set; }
 
     public virtual DbSet<User> Users { get; set; }
-    /*
+
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 #warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
         => optionsBuilder.UseSqlServer("Server=LAPTOP-0TIEB7HR;Database=Carniceria;Trusted_Connection=True;Integrated Security=True;Trust Server Certificate = True;MultipleActiveResultSets=true");
-    */
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<Branch>(entity =>
@@ -58,7 +62,6 @@ public partial class CarniceriaContext : DbContext
 
             entity.HasOne(d => d.Branch).WithMany(p => p.Categories)
                 .HasForeignKey(d => d.BranchId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_Categories_Branches");
         });
 
@@ -78,7 +81,49 @@ public partial class CarniceriaContext : DbContext
         {
             entity.HasKey(e => e.UnitId);
 
+            entity.Property(e => e.Abbreviation).HasDefaultValue("");
             entity.Property(e => e.Name).HasMaxLength(150);
+        });
+
+        modelBuilder.Entity<Order>(entity =>
+        {
+            entity.HasKey(e => e.OrderId).HasName("PK__Orders__C3905BCF0A604A35");
+
+            entity.Property(e => e.Name).HasMaxLength(150);
+            entity.Property(e => e.RegistrationDate)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+
+            entity.HasOne(d => d.Branch).WithMany(p => p.Orders)
+                .HasForeignKey(d => d.BranchId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_Orders_Branches");
+
+            entity.HasOne(d => d.User).WithMany(p => p.Orders)
+                .HasForeignKey(d => d.UserId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_Orders_Users");
+        });
+
+        modelBuilder.Entity<OrderDetail>(entity =>
+        {
+            entity.HasKey(e => e.OrderDetailId).HasName("PK__OrderDet__D3B9D36C7AD12F8A");
+
+            entity.Property(e => e.Price).HasColumnType("decimal(10, 2)");
+            entity.Property(e => e.Subtotal)
+                .HasComputedColumnSql("([WeightOrQuantity]*[Price])", true)
+                .HasColumnType("decimal(21, 4)");
+            entity.Property(e => e.WeightOrQuantity).HasColumnType("decimal(10, 2)");
+
+            entity.HasOne(d => d.Order).WithMany(p => p.OrderDetails)
+                .HasForeignKey(d => d.OrderId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_OrderDetails_Orders");
+
+            entity.HasOne(d => d.Product).WithMany(p => p.OrderDetails)
+                .HasForeignKey(d => d.ProductId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_OrderDetails_Products");
         });
 
         modelBuilder.Entity<Product>(entity =>
@@ -91,6 +136,7 @@ public partial class CarniceriaContext : DbContext
                 .HasDefaultValueSql("(getdate())")
                 .HasColumnType("datetime");
             entity.Property(e => e.Stock).HasColumnType("decimal(10, 0)");
+            entity.Property(e => e.UpdateAt).HasColumnType("datetime");
 
             entity.HasOne(d => d.Branch).WithMany(p => p.Products)
                 .HasForeignKey(d => d.BranchId)
@@ -113,38 +159,34 @@ public partial class CarniceriaContext : DbContext
             entity.Property(e => e.Date)
                 .HasDefaultValueSql("(getdate())")
                 .HasColumnType("datetime");
-            entity.Property(e => e.Total).HasColumnType("decimal(10, 2)");
 
             entity.HasOne(d => d.Branch).WithMany(p => p.Sales)
                 .HasForeignKey(d => d.BranchId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_Sales_Branches");
-
-            entity.HasOne(d => d.Customer).WithMany(p => p.Sales)
-                .HasForeignKey(d => d.CustomerId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_Sales_Customers");
         });
 
-        modelBuilder.Entity<SalesDetail>(entity =>
+        modelBuilder.Entity<SaleDetail>(entity =>
         {
-            entity.HasKey(e => e.DetailId);
+            entity.HasKey(e => e.SaleDetailsId);
 
-            entity.ToTable("SalesDetail");
+            entity.Property(e => e.Price).HasColumnType("decimal(10, 2)");
+            entity.Property(e => e.Total).HasColumnType("decimal(10, 2)");
+            entity.Property(e => e.WeightOrQuantity).HasColumnType("decimal(10, 2)");
 
-            entity.Property(e => e.Amount).HasColumnType("decimal(10, 2)");
-            entity.Property(e => e.Subtotal).HasColumnType("decimal(10, 2)");
-            entity.Property(e => e.UnitPrice).HasColumnType("decimal(10, 2)");
+            entity.HasOne(d => d.Order).WithMany(p => p.SaleDetails)
+                .HasForeignKey(d => d.OrderId)
+                .HasConstraintName("FK_SaleDetails_Orders");
 
-            entity.HasOne(d => d.Product).WithMany(p => p.SalesDetails)
+            entity.HasOne(d => d.Product).WithMany(p => p.SaleDetails)
                 .HasForeignKey(d => d.ProductId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_SalesDetail_Products");
+                .HasConstraintName("FK_SaleDetails_Products");
 
-            entity.HasOne(d => d.Sale).WithMany(p => p.SalesDetails)
+            entity.HasOne(d => d.Sale).WithMany(p => p.SaleDetails)
                 .HasForeignKey(d => d.SaleId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_SalesDetail_Sales");
+                .HasConstraintName("FK_SaleDetails_Sales");
         });
 
         modelBuilder.Entity<User>(entity =>

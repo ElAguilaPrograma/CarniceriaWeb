@@ -3,37 +3,25 @@ using System.Collections.Generic;
 
 namespace DataBase_Carniceria;
 
-public partial class Product
+public partial class Order
 {
-    public int ProductId { get; set; }
+    public int OrderId { get; set; }
 
     public int BranchId { get; set; }
 
-    public int CategoryId { get; set; }
-
-    public int UnitId { get; set; }
-
-    public string Code { get; set; } = null!;
+    public int UserId { get; set; }
 
     public string Name { get; set; } = null!;
 
-    public decimal Price { get; set; }
-
-    public decimal Stock { get; set; }
-
     public DateTime RegistrationDate { get; set; }
 
-    public bool Active { get; set; }
-
-    public DateTime? UpdateAt { get; set; }
+    public bool IsComplete { get; set; }
 
     public virtual Branch Branch { get; set; } = null!;
-
-    public virtual Category Category { get; set; } = null!;
 
     public virtual ICollection<OrderDetail> OrderDetails { get; set; } = new List<OrderDetail>();
 
     public virtual ICollection<SaleDetail> SaleDetails { get; set; } = new List<SaleDetail>();
 
-    public virtual MeasurementUnit Unit { get; set; } = null!;
+    public virtual User User { get; set; } = null!;
 }

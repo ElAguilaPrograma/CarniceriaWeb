@@ -3,7 +3,7 @@ import { IProduct } from '../../models/products.model';
 import { ProductsService } from '../../services/products.service';
 import { NgForm } from '@angular/forms';
 import { OrderService } from '../../services/order.service';
-import { IOrder } from '../../models/order.model';
+import { Order } from '../../models/order.model';
 import { CanDeactivate } from '@angular/router';
 import { CanComponentDeactivate } from '../../services/can-deactivate.guard';
 import { SettingsService } from '../../services/settings.service';
@@ -16,12 +16,14 @@ import { SettingsService } from '../../services/settings.service';
 })
 export class CarnageComponent implements OnInit, CanComponentDeactivate {
   productsCarnage: IProduct[] = [];
-  orders: IOrder[] = [];
+  orders: Order[] = [];
   productsSelected: Array<IProduct & { weight?: number; isCalculating?: boolean }> = [];
+  orderProductos: IProduct[] = [];
   showNewOrderTable: boolean = false;
   isSearching: boolean = false;
   errorMessage: string = '';
   stockValidation: boolean = false;
+  private generatedOrderNumbers: Set<string> = new Set();
 
   constructor(private productsService: ProductsService, private orderService: OrderService, private settingsService: SettingsService) { }
 
@@ -59,19 +61,15 @@ export class CarnageComponent implements OnInit, CanComponentDeactivate {
   }
 
   onSelectProduct(product: IProduct): void {
-    this.productsSelected.push({
-      ...product,
-      weight: undefined,
-      isCalculating: false
-    });
-    console.log('Product selected:', product);
+    this.productsSelected.push({ ...product, weight: undefined, isCalculating: false });
+    console.log("Product selected:", product);
   }
 
   onWeightReceived(form: NgForm, index: number): void {
     if (form.valid) {
       const weight = parseFloat(form.value.weight);
       if (isNaN(weight) || weight <= 0) {
-        this.errorMessage = 'Por favor ingresa un peso válido.';
+        this.errorMessage = 'Please enter a valid weight.';
         alert(this.errorMessage);
         return;
       }
@@ -81,11 +79,11 @@ export class CarnageComponent implements OnInit, CanComponentDeactivate {
       product.isCalculating = true;
 
       const branchId = JSON.parse(localStorage.getItem('selectedBranch') || '{}').branchId;
-      
+
       this.productsService.getMeatPrice(product.productId!, branchId, weight).subscribe({
         next: (data) => {
-          if (this.stockValidation && weight > product.stock!) {
-            this.errorMessage = `El peso ingresado (${weight} kg) excede el stock disponible (${product.stock} kg). Por favor ingresa un peso válido.`;
+          if (this.stockValidation && weight > product.stock) {
+            this.errorMessage = `Insufficient stock for ${product.name}. Available stock: ${product.stock} kg.`;
             alert(this.errorMessage);
             product.isCalculating = false;
             this.productsSelected.splice(index, 1);
@@ -93,16 +91,17 @@ export class CarnageComponent implements OnInit, CanComponentDeactivate {
           }
           this.productsSelected[index].price = data.price;
           this.productsSelected[index].isCalculating = false;
-          console.log('Price updated for product:', this.productsSelected[index]);
+          console.log(`Price calculated for ${product.name}:`, data.price);
         },
         error: (err) => {
-          console.error('Error fetching meat price:', err);
-          this.errorMessage = 'Error al obtener el precio. Por favor intenta de nuevo.';
-          this.productsSelected[index].isCalculating = false;
+          console.error('Error calculating price:', err);
+          this.errorMessage = 'Error calculating price. Please try again later.';
+          product.isCalculating = false;
         }
-      });
-    } else {
-      this.errorMessage = 'Por favor ingresa un peso válido.';
+      })
+    }
+    else {
+      this.errorMessage = 'Please enter a valid weight.';
       alert(this.errorMessage);
     }
   }
@@ -118,36 +117,82 @@ export class CarnageComponent implements OnInit, CanComponentDeactivate {
     console.log('Order cleaned, selected products cleared.');
   }
 
-  onSendOrder(): void {
-    const branchId = JSON.parse(localStorage.getItem('selectedBranch') || '{}').branchId;
-    const totalAmount = this.onCalculateTotal();
-    
-    // Actualizar el stock de cada producto solo si la validación está activada
-    if (this.stockValidation) {
-      this.productsSelected.forEach(product => {
-        if (product.weight && product.productId && product.stock !== undefined) {
-          const newStock = product.stock - product.weight;
-          this.productsService.postUpdateProductStock(branchId, product.productId, newStock).subscribe({
-            next: (updatedProduct) => {
-              console.log('Product stock updated after sending order:', updatedProduct);
-            },
-            error: (err) => {
-              console.error('Error updating product stock after sending order:', err);
-              this.errorMessage = `Error al actualizar el stock del producto ${product.name}`;
-            }
-          });
-        }
-      });
-    }
-
-    const orderId = this.orderService.saveOrder(this.productsSelected, totalAmount);
-    console.log(`Orden guardada: ${orderId}`);
-    this.loadOrders(); 
+  onCancelOrder(): void {
+    this.productsSelected.length = 0;
   }
 
   loadOrders(): void {
-    this.orders = this.orderService.getAllOrders();
-    console.log('Órdenes cargadas:', this.orders);
+    const branchId = JSON.parse(localStorage.getItem('selectedBranch') || '{}').branchId;
+    if (!branchId) {
+      console.error('No branch selected');
+      return;
+    }
+
+    this.orderService.getOrdersWithDetails(branchId).subscribe({
+      next: (data) => {
+        this.orders = data;
+        console.log('Orders loaded:', this.orders);
+      },
+      error: (err) => {
+        console.error('Error loading orders:', err);
+        this.errorMessage = 'Error loading orders. Please try again later.';
+      }
+    });
+  }
+
+  private generateUniqueOrderNumber(): string {
+    let orderNumber: string;
+    do {
+      orderNumber = Math.floor(10000 + Math.random() * 90000).toString();
+    } while (this.generatedOrderNumbers.has(orderNumber));
+    
+    this.generatedOrderNumbers.add(orderNumber);
+    return orderNumber;
+  }
+
+  createOrder(): void {
+    const branchId = JSON.parse(localStorage.getItem('selectedBranch') || '{}').branchId;
+    if (!branchId) {
+      alert('No branch selected');
+      return;
+    }
+
+    if (this.productsSelected.length === 0) {
+      alert('No products selected');
+      return;
+    }
+
+    // Verificar que todos los productos tengan peso y precio calculado
+    const allProductsReady = this.productsSelected.every(p => p.weight !== undefined && p.price !== undefined && !p.isCalculating);
+    if (!allProductsReady) {
+      alert('Please wait for all products to be processed');
+      return;
+    }
+
+    const orderName = `Orden ${this.generateUniqueOrderNumber()}`;
+    
+    const orderRequest = {
+      branchId: branchId,
+      name: orderName,
+      details: this.productsSelected.map(p => ({
+        productId: p.productId!,
+        weightOrQuantity: p.weight!
+      }))
+    };
+
+    this.orderService.createOrder(orderRequest).subscribe({
+      next: (response) => {
+        console.log('Order created successfully:', response);
+        alert(`Orden creada exitosamente: ${orderName}`);
+        this.onCleanOrder();
+        this.loadOrders();
+      },
+      error: (err) => {
+        console.error('Error creating order:', err);
+        this.errorMessage = 'Error creating order. Please try again later.';
+        alert(this.errorMessage);
+      }
+    });
   }
 
 }

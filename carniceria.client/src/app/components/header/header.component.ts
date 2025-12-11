@@ -14,7 +14,8 @@ import { OrderService } from '../../services/order.service';
 })
 export class HeaderComponent implements OnInit{
   loginStatus: boolean = false;
-  hideCollapseSidebarIcon: boolean = true;
+  hideCollapseSidebarIcon: boolean = false;
+  branchExist = false;
   nameBranch: string = "Bienvenido";
   openConfirmModalLogout: boolean = false;
 
@@ -58,7 +59,6 @@ export class HeaderComponent implements OnInit{
 
   logOut(): void {
     const leaving = this.authService.logout();
-    this.orderService.clearAllOrders();
     this.branchService.deleteSeletedBranchFromLocalStorage();
     window.location.reload();
   }

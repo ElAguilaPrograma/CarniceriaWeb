@@ -1,21 +1,21 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace DataBase_Carniceria.DTOs
 {
-    public class SaleRequest
+    public class OrdersRequest
     {
-        public List<SaleDetailsDto> SaleDetails { get; set; } = new();
+        public int BranchId { get; set; }
+        public string Name { get; set; } = "";
+        public List<OrderDetailDto> Details { get; set; } = new();
     }
 
-    public class SaleDetailsDto
+    public class OrderDetailDto
     {
         public int ProductId { get; set; }
-        public int? OrderId { get; set; }
         public decimal WeightOrQuantity { get; set; }
     }
 }
